@@ -1,0 +1,1490 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>旅 여행기</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600;700&family=Noto+Sans+KR:wght@300;400;500&family=DM+Serif+Display:ital@0;1&display=swap');
+:root{
+  --ink:#1a1208;--paper:#f5f0e8;--aged:#e8dfc8;
+  --sepia:#8b6914;--rust:#c4501a;--gold:#c9a227;
+  --moss:#4a6741;--shadow:rgba(26,18,8,0.15);
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Noto Sans KR',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;overflow-x:hidden;}
+.screen{display:none;min-height:100vh;flex-direction:column;}
+.screen.active{display:flex;}
+
+/* HOME */
+#home{background:var(--ink);align-items:center;justify-content:center;position:relative;overflow:hidden;}
+#home::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 30% 40%,#3d2a0a 0%,transparent 60%),radial-gradient(ellipse at 70% 70%,#0d1a14 0%,transparent 50%);}
+.home-grain{position:absolute;inset:0;opacity:.4;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.06'/%3E%3C/svg%3E");}
+.home-content{position:relative;text-align:center;padding:2rem;}
+.home-kanji{font-family:'DM Serif Display',serif;font-size:5rem;color:var(--gold);opacity:.9;line-height:1;text-shadow:0 0 60px rgba(201,162,39,.3);}
+.home-title{font-family:'Noto Serif KR',serif;font-size:1.4rem;color:var(--paper);font-weight:300;letter-spacing:.15em;margin:.5rem 0 .3rem;}
+.home-sub{font-size:.72rem;color:rgba(245,240,232,.38);letter-spacing:.2em;text-transform:uppercase;margin-bottom:2.5rem;}
+.home-btns{display:flex;flex-direction:column;gap:.7rem;align-items:center;}
+.btn-start{background:none;border:1px solid rgba(201,162,39,.5);color:var(--gold);padding:.85rem 2.5rem;font-family:'Noto Serif KR',serif;font-size:1rem;letter-spacing:.1em;cursor:pointer;transition:all .3s;position:relative;overflow:hidden;width:210px;}
+.btn-start::before{content:'';position:absolute;inset:0;background:var(--gold);transform:scaleX(0);transform-origin:left;transition:transform .3s;z-index:-1;}
+.btn-start:hover::before,.btn-start:active::before{transform:scaleX(1);}
+.btn-start:hover,.btn-start:active{color:var(--ink);}
+.btn-resume{background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.28);color:rgba(201,162,39,.8);padding:.62rem 1.5rem;font-family:'Noto Serif KR',serif;font-size:.83rem;cursor:pointer;border-radius:3px;width:210px;display:none;}
+.home-saved-info{font-size:.63rem;color:rgba(245,240,232,.26);margin-top:.25rem;display:none;}
+
+/* CAPTURE */
+#capture{background:#111;}
+.cap-header{padding:.8rem 1.1rem .4rem;display:flex;align-items:center;justify-content:space-between;background:rgba(17,17,17,.97);z-index:10;}
+.cap-title{font-family:'Noto Serif KR',serif;color:var(--paper);font-size:.88rem;font-weight:300;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cap-right{display:flex;align-items:center;gap:.5rem;}
+.cap-count{background:var(--rust);color:white;font-size:.62rem;padding:.14rem .48rem;border-radius:20px;}
+.btn-save-draft{background:none;border:1px solid rgba(201,162,39,.32);color:rgba(201,162,39,.68);font-size:.62rem;padding:.18rem .5rem;border-radius:3px;cursor:pointer;}
+#video-container{position:relative;overflow:hidden;height:42vh;}
+#video{width:100%;height:100%;object-fit:cover;display:block;}
+.vignette{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 60%,rgba(0,0,0,.6) 100%);pointer-events:none;}
+#canvas{display:none;}
+
+/* GPS STATUS BAR */
+.gps-bar{background:rgba(17,17,17,.97);padding:.3rem 1rem;display:flex;align-items:center;gap:.5rem;border-top:1px solid rgba(255,255,255,.04);}
+.gps-dot{width:7px;height:7px;border-radius:50%;background:#666;flex-shrink:0;transition:background .3s;}
+.gps-dot.active{background:#4a9;animation:gps-pulse 2s infinite;}
+.gps-dot.searching{background:var(--gold);animation:gps-pulse 1s infinite;}
+@keyframes gps-pulse{0%,100%{opacity:1;}50%{opacity:.4;}}
+.gps-text{font-size:.62rem;color:rgba(245,240,232,.38);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-gps-group{background:rgba(74,103,65,.15);border:1px solid rgba(74,103,65,.4);color:#a8d4a0;font-size:.6rem;padding:.16rem .45rem;border-radius:3px;cursor:pointer;white-space:nowrap;display:none;}
+.btn-gps-group:active{background:rgba(74,103,65,.3);}
+
+/* SPOTS SECTION */
+.spots-section{background:rgba(17,17,17,.97);border-top:1px solid rgba(255,255,255,.04);overflow-y:auto;max-height:26vh;}
+.spots-hdr{display:flex;align-items:center;justify-content:space-between;padding:.5rem .9rem .25rem;}
+.spots-label{font-size:.6rem;color:rgba(245,240,232,.28);letter-spacing:.1em;text-transform:uppercase;}
+.spots-hdr-btns{display:flex;gap:.35rem;}
+.btn-auto-group{background:rgba(74,103,65,.12);border:1px solid rgba(74,103,65,.35);color:#a8d4a0;font-size:.6rem;padding:.18rem .5rem;border-radius:3px;cursor:pointer;}
+.btn-add-spot{background:rgba(201,162,39,.1);border:1px solid rgba(201,162,39,.32);color:var(--gold);font-size:.6rem;padding:.18rem .5rem;border-radius:3px;cursor:pointer;}
+.spots-list{padding:.25rem .8rem .7rem;display:flex;flex-direction:column;gap:.42rem;}
+.no-spots{color:rgba(245,240,232,.22);font-size:.72rem;text-align:center;padding:.8rem 0;}
+.spot-card{background:rgba(245,240,232,.04);border:1px solid rgba(245,240,232,.07);border-radius:6px;overflow:hidden;transition:border-color .2s;}
+.spot-card.active-spot{border-color:rgba(201,162,39,.48);}
+.spot-card-inner{display:flex;align-items:stretch;}
+.spot-thumb{width:64px;flex-shrink:0;background:#222;position:relative;}
+.spot-thumb img{width:64px;height:64px;object-fit:cover;display:block;}
+.spot-thumb-count{position:absolute;bottom:2px;right:2px;background:rgba(0,0,0,.7);color:white;font-size:.55rem;padding:1px 3px;border-radius:2px;}
+.spot-thumb-empty{width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;color:rgba(245,240,232,.18);}
+.spot-info{flex:1;padding:.42rem .65rem;display:flex;flex-direction:column;justify-content:center;gap:.2rem;min-width:0;}
+.spot-name{font-family:'Noto Serif KR',serif;color:var(--paper);font-size:.8rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.spot-meta{font-size:.58rem;color:rgba(245,240,232,.3);display:flex;gap:.35rem;flex-wrap:wrap;}
+.spot-badge{padding:.1rem .35rem;border-radius:10px;background:rgba(245,240,232,.06);color:rgba(245,240,232,.4);}
+.spot-badge.gps{background:rgba(74,103,65,.18);color:#a8d4a0;}
+.spot-badge.active{background:rgba(201,162,39,.18);color:var(--gold);}
+.spot-badge.voice{background:rgba(201,162,39,.12);color:var(--gold);}
+.spot-actions{display:flex;flex-direction:column;border-left:1px solid rgba(245,240,232,.05);}
+.spot-act-btn{background:none;border:none;color:rgba(245,240,232,.28);padding:0 .6rem;cursor:pointer;font-size:.85rem;flex:1;display:flex;align-items:center;justify-content:center;}
+.spot-act-btn:active{background:rgba(245,240,232,.06);color:var(--gold);}
+.spot-act-btn.del:active{color:var(--rust);}
+
+/* CAPTURE CONTROLS */
+.cap-controls{background:rgba(17,17,17,.97);padding:.7rem 1.2rem 1.2rem;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:.6rem;}
+.ctrl-left{display:flex;flex-direction:column;gap:.35rem;justify-self:start;}
+.btn-mic{background:none;border:1.5px solid rgba(245,240,232,.26);color:var(--paper);width:42px;height:42px;border-radius:50%;font-size:1.05rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.btn-mic.has-comment{border-color:var(--gold);color:var(--gold);}
+.btn-import{background:none;border:1px dashed rgba(245,240,232,.16);color:rgba(245,240,232,.38);font-size:.58rem;padding:.18rem .45rem;border-radius:3px;cursor:pointer;white-space:nowrap;}
+.btn-shutter{width:64px;height:64px;border-radius:50%;background:white;border:4px solid rgba(255,255,255,.26);cursor:pointer;transition:transform .15s,opacity .15s;position:relative;}
+.btn-shutter::after{content:'';position:absolute;inset:5px;border-radius:50%;background:white;border:2px solid rgba(0,0,0,.08);}
+.btn-shutter:active{transform:scale(.92);opacity:.8;}
+.btn-gen{background:none;border:1.5px solid var(--gold);color:var(--gold);padding:.4rem .65rem;border-radius:4px;font-family:'Noto Serif KR',serif;font-size:.68rem;cursor:pointer;justify-self:end;text-align:center;line-height:1.3;}
+.btn-gen:active{background:var(--gold);color:var(--ink);}
+.btn-gen:disabled{opacity:.26;cursor:not-allowed;}
+.flash-overlay{position:fixed;inset:0;background:white;opacity:0;pointer-events:none;z-index:999;transition:opacity .05s;}
+.flash-overlay.flash{opacity:1;transition:opacity .3s;}
+
+/* MODALS */
+.modal-overlay{position:fixed;inset:0;background:rgba(26,18,8,.88);z-index:100;display:none;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.sheet{background:var(--ink);width:100%;border-top:1px solid rgba(201,162,39,.26);animation:slideUp .26s ease;max-height:92vh;overflow-y:auto;}
+@keyframes slideUp{from{transform:translateY(100%);}to{transform:translateY(0);}}
+.sheet-pad{padding:1.2rem 1.3rem 2.4rem;}
+.sheet-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.95rem;}
+.sheet-title{font-family:'Noto Serif KR',serif;color:var(--paper);font-weight:300;font-size:.98rem;}
+.sheet-close{background:none;border:none;color:rgba(245,240,232,.32);font-size:1.05rem;cursor:pointer;}
+.field-lbl{font-size:.65rem;color:rgba(245,240,232,.36);letter-spacing:.06em;text-transform:uppercase;margin-bottom:.38rem;display:flex;align-items:center;justify-content:space-between;}
+.field-input{width:100%;background:rgba(245,240,232,.05);border:1px solid rgba(245,240,232,.11);color:var(--paper);padding:.68rem .85rem;font-family:'Noto Sans KR',sans-serif;font-size:.84rem;border-radius:4px;margin-bottom:.85rem;}
+.field-input:focus{outline:none;border-color:rgba(201,162,39,.43);}
+.field-input::placeholder{color:rgba(245,240,232,.18);}
+textarea.field-input{resize:none;height:85px;margin-bottom:.28rem;}
+.tb-row{display:flex;gap:.38rem;flex-wrap:wrap;margin-bottom:.65rem;}
+.btn-stt{background:rgba(245,240,232,.06);border:1px solid rgba(245,240,232,.14);color:rgba(245,240,232,.65);padding:.28rem .55rem;border-radius:4px;font-size:.66rem;cursor:pointer;display:flex;align-items:center;gap:.22rem;white-space:nowrap;}
+.btn-stt.listening{border-color:var(--rust);color:var(--rust);background:rgba(196,80,26,.12);animation:pulse-r 1s infinite;}
+@keyframes pulse-r{0%,100%{box-shadow:0 0 0 0 rgba(196,80,26,.4);}50%{box-shadow:0 0 0 6px rgba(196,80,26,0);}}
+.btn-tts{background:rgba(201,162,39,.07);border:1px solid rgba(201,162,39,.28);color:var(--gold);padding:.28rem .55rem;border-radius:4px;font-size:.66rem;cursor:pointer;display:flex;align-items:center;gap:.22rem;white-space:nowrap;}
+.btn-tts.speaking{background:rgba(201,162,39,.18);animation:pulse-t 1s infinite;}
+@keyframes pulse-t{0%,100%{opacity:1;}50%{opacity:.5;}}
+.stt-st{font-size:.63rem;min-height:1rem;color:rgba(245,240,232,.26);}
+.stt-st.active{color:var(--rust);}
+.audio-row{display:flex;gap:.4rem;align-items:center;margin-bottom:.85rem;}
+.audio-prev{background:rgba(245,240,232,.04);border:1px solid rgba(245,240,232,.09);border-radius:4px;padding:.4rem .65rem;flex:1;font-size:.68rem;color:rgba(245,240,232,.45);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-audio-imp{background:rgba(74,103,65,.16);border:1px solid rgba(74,103,65,.42);color:#a8d4a0;padding:.28rem .55rem;border-radius:4px;font-size:.66rem;cursor:pointer;white-space:nowrap;}
+.btn-audio-clr{background:none;border:none;color:rgba(245,240,232,.28);font-size:.85rem;cursor:pointer;}
+.modal-btns{display:flex;gap:.6rem;margin-top:.9rem;}
+.btn-m{flex:1;padding:.72rem;border-radius:4px;font-family:'Noto Serif KR',serif;font-size:.84rem;cursor:pointer;border:none;}
+.btn-cancel{background:rgba(245,240,232,.07);color:var(--paper);}
+.btn-save{background:var(--gold);color:var(--ink);font-weight:600;}
+.btn-m:active{opacity:.72;}
+
+/* SPOT MODAL PHOTOS */
+.photos-grid-edit{display:grid;grid-template-columns:repeat(4,1fr);gap:.35rem;margin-bottom:.85rem;}
+.photo-wrap-edit{position:relative;aspect-ratio:1;border-radius:4px;overflow:hidden;}
+.photo-wrap-edit img{width:100%;height:100%;object-fit:cover;}
+.photo-del-btn{position:absolute;top:2px;right:2px;background:rgba(196,80,26,.85);border:none;color:white;width:16px;height:16px;border-radius:50%;font-size:.55rem;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.photo-add-btn{aspect-ratio:1;border-radius:4px;border:1px dashed rgba(245,240,232,.18);display:flex;align-items:center;justify-content:center;color:rgba(245,240,232,.28);font-size:1.1rem;cursor:pointer;}
+.audio-player-box{background:rgba(74,103,65,.1);border:1px solid rgba(74,103,65,.28);border-radius:4px;padding:.5rem .75rem;margin-bottom:.8rem;display:flex;align-items:center;gap:.55rem;}
+.audio-play-btn{background:rgba(74,103,65,.22);border:none;color:#a8d4a0;width:28px;height:28px;border-radius:50%;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.audio-play-btn:active{background:rgba(74,103,65,.45);}
+.audio-nm{font-size:.68rem;color:#a8d4a0;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.btn-audio-rm{background:none;border:none;color:rgba(245,240,232,.26);font-size:.85rem;cursor:pointer;}
+
+/* GPS AUTO GROUP MODAL */
+.group-preview{background:rgba(245,240,232,.04);border:1px solid rgba(245,240,232,.09);border-radius:6px;padding:.85rem;margin-bottom:.9rem;max-height:40vh;overflow-y:auto;}
+.group-item{display:flex;align-items:center;gap:.7rem;padding:.5rem 0;border-bottom:1px solid rgba(245,240,232,.06);}
+.group-item:last-child{border-bottom:none;}
+.group-thumb{width:44px;height:44px;border-radius:4px;object-fit:cover;flex-shrink:0;}
+.group-thumb-empty{width:44px;height:44px;border-radius:4px;background:rgba(245,240,232,.06);display:flex;align-items:center;justify-content:center;font-size:.9rem;flex-shrink:0;}
+.group-info{flex:1;min-width:0;}
+.group-name{font-size:.78rem;color:var(--paper);font-family:'Noto Serif KR',serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.group-meta{font-size:.62rem;color:rgba(245,240,232,.36);margin-top:.15rem;}
+.group-name-input{background:rgba(245,240,232,.06);border:1px solid rgba(245,240,232,.12);color:var(--paper);padding:.3rem .5rem;border-radius:3px;font-size:.75rem;width:100%;margin-top:.2rem;font-family:'Noto Sans KR',sans-serif;}
+.group-name-input:focus{outline:none;border-color:rgba(201,162,39,.4);}
+
+/* PERM POPUP */
+.perm-overlay{position:fixed;inset:0;background:rgba(26,18,8,.94);z-index:300;display:none;align-items:center;justify-content:center;padding:1.1rem;backdrop-filter:blur(6px);}
+.perm-overlay.open{display:flex;}
+.perm-card{background:var(--ink);border:1px solid rgba(201,162,39,.2);border-radius:10px;width:100%;max-width:360px;overflow:hidden;animation:popIn .3s cubic-bezier(.34,1.56,.64,1);}
+@keyframes popIn{from{transform:scale(.85);opacity:0;}to{transform:scale(1);opacity:1;}}
+.perm-hdr{background:linear-gradient(135deg,#2a1d06,#0f1a10);padding:1.3rem 1.3rem 1rem;text-align:center;border-bottom:1px solid rgba(201,162,39,.1);}
+.perm-icon{width:52px;height:52px;border-radius:50%;border:2px solid rgba(201,162,39,.38);display:flex;align-items:center;justify-content:center;margin:0 auto .75rem;font-size:1.4rem;background:rgba(201,162,39,.06);}
+.perm-ttl{font-family:'Noto Serif KR',serif;color:var(--paper);font-size:.95rem;margin-bottom:.18rem;}
+.perm-sub{color:rgba(245,240,232,.3);font-size:.65rem;}
+.perm-bd{padding:1rem 1.2rem 1.3rem;}
+.perm-list{background:rgba(245,240,232,.04);border-radius:5px;padding:.75rem;margin-bottom:.75rem;}
+.perm-item{display:flex;align-items:flex-start;gap:.5rem;margin-bottom:.45rem;font-size:.75rem;color:rgba(245,240,232,.6);line-height:1.5;}
+.perm-item:last-child{margin-bottom:0;}
+.perm-notice{font-size:.62rem;color:rgba(245,240,232,.22);text-align:center;margin-bottom:.82rem;line-height:1.5;}
+.perm-btns{display:flex;flex-direction:column;gap:.45rem;}
+.btn-perm-allow{background:var(--gold);color:var(--ink);border:none;padding:.78rem;border-radius:5px;font-family:'Noto Serif KR',serif;font-size:.86rem;font-weight:700;cursor:pointer;width:100%;}
+.btn-perm-allow:active{opacity:.82;}
+.btn-perm-deny{background:none;color:rgba(245,240,232,.26);border:none;padding:.4rem;font-size:.7rem;cursor:pointer;width:100%;text-align:center;}
+.perm-iframe-bd,.perm-denied-bd{padding:1rem 1.2rem 1.3rem;}
+.iframe-box{background:rgba(201,162,39,.05);border:1px solid rgba(201,162,39,.17);border-radius:5px;padding:.8rem;margin-bottom:.85rem;}
+.iframe-box-ttl{font-size:.76rem;color:var(--gold);font-family:'Noto Serif KR',serif;margin-bottom:.45rem;}
+.step-row{display:flex;gap:.45rem;align-items:flex-start;font-size:.73rem;color:rgba(245,240,232,.55);line-height:1.5;margin-bottom:.38rem;}
+.step-row:last-child{margin-bottom:0;}
+.step-n{background:rgba(201,162,39,.18);color:var(--gold);font-size:.58rem;font-weight:700;min-width:14px;height:14px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:.2rem;}
+.step-row b{color:var(--gold);}
+.denied-tag{display:inline-block;background:rgba(196,80,26,.1);border:1px solid rgba(196,80,26,.22);color:#e08060;font-size:.62rem;padding:.13rem .48rem;border-radius:20px;margin-bottom:.65rem;}
+.steps-box{background:rgba(245,240,232,.04);border-radius:5px;padding:.78rem;margin-bottom:.82rem;}
+.btn-perm-retry{background:none;border:1px solid rgba(201,162,39,.32);color:var(--gold);padding:.68rem;border-radius:5px;font-family:'Noto Serif KR',serif;font-size:.8rem;cursor:pointer;width:100%;display:block;margin-bottom:.45rem;text-align:center;}
+.btn-perm-retry:active{background:var(--gold);color:var(--ink);}
+
+/* JOURNAL */
+#journal{background:var(--paper);}
+.journal-hdr{padding:1rem 1.1rem .7rem;background:var(--aged);border-bottom:1px solid rgba(139,105,20,.17);position:sticky;top:0;z-index:10;}
+.journal-hdr-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.38rem;}
+.btn-back{background:none;border:none;color:var(--sepia);font-size:.95rem;cursor:pointer;padding:.22rem;}
+.journal-date{font-size:.62rem;color:var(--sepia);letter-spacing:.06em;text-align:center;}
+.export-row{display:flex;gap:.38rem;}
+.btn-exp-html{background:var(--sepia);color:var(--paper);border:none;font-size:.6rem;padding:.26rem .52rem;border-radius:3px;cursor:pointer;}
+.btn-exp-txt{background:none;border:1px solid var(--sepia);color:var(--sepia);font-size:.6rem;padding:.26rem .52rem;border-radius:3px;cursor:pointer;}
+.btn-exp-html:active,.btn-exp-txt:active{opacity:.7;}
+.journal-title-el{font-family:'DM Serif Display',serif;font-size:1.6rem;color:var(--ink);line-height:1.2;font-style:italic;}
+.journal-body{padding:1.2rem 1.1rem;overflow-y:auto;flex:1;}
+.loading-state{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:50vh;gap:.85rem;}
+.loading-ring{width:50px;height:50px;border:2px solid var(--aged);border-top-color:var(--sepia);border-radius:50%;animation:spin 1s linear infinite;}
+.loading-steps{font-size:.75rem;color:rgba(139,105,20,.7);font-family:'Noto Serif KR',serif;text-align:center;margin-top:.3rem;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.journal-entry{margin-bottom:2.6rem;}
+.entry-spot-lbl{font-size:.62rem;color:var(--gold);letter-spacing:.13em;text-transform:uppercase;margin-bottom:.65rem;display:flex;align-items:center;gap:.45rem;}
+.entry-spot-lbl::before,.entry-spot-lbl::after{content:'';flex:1;height:1px;background:rgba(201,162,39,.2);}
+.entry-photos{display:grid;gap:.3rem;margin-bottom:.85rem;}
+.entry-photos.one{grid-template-columns:1fr;}
+.entry-photos.two{grid-template-columns:1fr 1fr;}
+.entry-photos.multi{grid-template-columns:1fr 1fr;}
+.entry-photo-wrap{position:relative;border-radius:3px;overflow:hidden;box-shadow:0 3px 12px var(--shadow);}
+.entry-photo-wrap.main-photo{grid-column:1/-1;}
+.entry-photo{width:100%;display:block;filter:sepia(12%) contrast(1.05);}
+.entry-photo-caption{position:absolute;bottom:0;left:0;right:0;background:linear-gradient(transparent,rgba(26,18,8,.7));padding:1.1rem .85rem .65rem;font-family:'Noto Serif KR',serif;font-size:.72rem;color:rgba(245,240,232,.86);font-style:italic;}
+.entry-audio-bar{background:rgba(74,103,65,.09);border:1px solid rgba(74,103,65,.26);border-radius:4px;padding:.47rem .72rem;margin-bottom:.68rem;display:flex;align-items:center;gap:.52rem;}
+.entry-audio-play{background:rgba(74,103,65,.2);border:none;color:#a8d4a0;width:24px;height:24px;border-radius:50%;font-size:.75rem;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.entry-audio-nm{font-size:.68rem;color:rgba(74,103,65,.82);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.entry-voice-note{background:var(--aged);border-left:3px solid var(--gold);padding:.55rem .78rem;margin-bottom:.68rem;border-radius:0 3px 3px 0;display:flex;align-items:center;gap:.5rem;}
+.entry-voice-text{font-size:.76rem;color:var(--sepia);font-style:italic;font-family:'Noto Serif KR',serif;flex:1;line-height:1.5;}
+.entry-voice-text::before{content:'🎤 ';font-style:normal;}
+.btn-play-voice{background:none;border:1px solid rgba(139,105,20,.32);color:var(--sepia);width:24px;height:24px;border-radius:50%;font-size:.75rem;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.btn-play-voice.speaking{background:var(--sepia);color:var(--paper);}
+.entry-text{font-family:'Noto Serif KR',serif;font-size:.92rem;line-height:1.95;color:var(--ink);font-weight:300;}
+.entry-divider{text-align:center;color:var(--gold);font-size:1rem;letter-spacing:.5rem;margin:1.8rem 0;opacity:.48;}
+.journal-closing{font-family:'Noto Serif KR',serif;font-size:.85rem;color:var(--sepia);font-style:italic;font-weight:300;text-align:center;padding:1.6rem 0 .8rem;border-top:1px solid rgba(139,105,20,.15);line-height:1.8;}
+
+/* AI 분석 배지 */
+.ai-badge{display:inline-flex;align-items:center;gap:.25rem;background:rgba(201,162,39,.08);border:1px solid rgba(201,162,39,.2);color:rgba(201,162,39,.65);font-size:.58rem;padding:.1rem .4rem;border-radius:10px;margin-left:.4rem;vertical-align:middle;}
+
+.toast{position:fixed;bottom:1.7rem;left:50%;transform:translateX(-50%) translateY(110px);background:var(--ink);color:var(--paper);padding:.58rem .95rem;border-radius:4px;font-size:.72rem;z-index:600;transition:transform .26s;border:1px solid rgba(201,162,39,.24);white-space:nowrap;}
+.toast.show{transform:translateX(-50%) translateY(0);}
+.hidden-input{display:none;}
+
+/* ── TIMELINE TABS ── */
+.timeline-tabs{display:flex;background:rgba(17,17,17,.97);border-bottom:1px solid rgba(255,255,255,.05);overflow-x:auto;scrollbar-width:none;padding:0 .8rem;}
+.timeline-tabs::-webkit-scrollbar{display:none;}
+.tab-btn{flex-shrink:0;background:none;border:none;border-bottom:2px solid transparent;color:rgba(245,240,232,.35);font-family:'Noto Serif KR',serif;font-size:.72rem;padding:.55rem .7rem;cursor:pointer;white-space:nowrap;transition:all .2s;}
+.tab-btn.active{color:var(--gold);border-bottom-color:var(--gold);}
+.tab-btn:active{color:rgba(201,162,39,.8);}
+
+/* ── STATS SCREEN ── */
+#stats{background:var(--ink);}
+.stats-header{padding:1rem 1.2rem .6rem;display:flex;align-items:center;justify-content:space-between;background:rgba(17,17,17,.97);}
+.stats-title{font-family:'Noto Serif KR',serif;color:var(--paper);font-size:.95rem;font-weight:300;}
+.stats-body{flex:1;overflow-y:auto;padding:1.2rem;}
+.stats-trip-name{font-family:'DM Serif Display',serif;font-size:1.7rem;color:var(--paper);font-style:italic;margin-bottom:.3rem;line-height:1.2;}
+.stats-date-range{font-size:.68rem;color:rgba(245,240,232,.38);letter-spacing:.08em;margin-bottom:1.5rem;}
+.stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-bottom:1.4rem;}
+.stat-card{background:rgba(245,240,232,.05);border:1px solid rgba(245,240,232,.08);border-radius:8px;padding:.9rem 1rem;}
+.stat-card.accent{background:rgba(201,162,39,.08);border-color:rgba(201,162,39,.2);}
+.stat-icon{font-size:1.3rem;margin-bottom:.35rem;display:block;}
+.stat-value{font-family:'DM Serif Display',serif;font-size:1.8rem;color:var(--paper);line-height:1;margin-bottom:.18rem;}
+.stat-value.gold{color:var(--gold);}
+.stat-label{font-size:.62rem;color:rgba(245,240,232,.38);letter-spacing:.06em;text-transform:uppercase;}
+.stats-section-title{font-size:.65rem;color:rgba(245,240,232,.35);letter-spacing:.1em;text-transform:uppercase;margin-bottom:.65rem;margin-top:1.2rem;}
+.day-stat-row{display:flex;align-items:center;gap:.75rem;padding:.55rem 0;border-bottom:1px solid rgba(245,240,232,.05);}
+.day-stat-row:last-child{border-bottom:none;}
+.day-stat-num{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--gold);width:28px;text-align:center;flex-shrink:0;}
+.day-stat-info{flex:1;}
+.day-stat-name{font-size:.78rem;color:var(--paper);font-family:'Noto Serif KR',serif;margin-bottom:.12rem;}
+.day-stat-meta{font-size:.62rem;color:rgba(245,240,232,.32);}
+.day-stat-bar{height:3px;background:rgba(201,162,39,.18);border-radius:2px;margin-top:.25rem;}
+.day-stat-bar-fill{height:100%;background:var(--gold);border-radius:2px;transition:width .6s ease;}
+.photo-strip{display:flex;gap:.35rem;overflow-x:auto;scrollbar-width:none;margin-bottom:1.2rem;}
+.photo-strip::-webkit-scrollbar{display:none;}
+.photo-strip img{width:70px;height:70px;object-fit:cover;border-radius:5px;flex-shrink:0;filter:sepia(12%) contrast(1.04);}
+.weather-row{display:flex;gap:.5rem;flex-wrap:wrap;margin-bottom:1rem;}
+.weather-chip{background:rgba(90,122,154,.12);border:1px solid rgba(90,122,154,.25);color:rgba(245,240,232,.6);font-size:.68rem;padding:.22rem .6rem;border-radius:20px;display:flex;align-items:center;gap:.3rem;}
+
+/* ── MAP SCREEN ── */
+#map-screen{background:var(--ink);}
+.map-header{padding:.9rem 1.1rem .5rem;display:flex;align-items:center;justify-content:space-between;background:rgba(17,17,17,.97);z-index:10;}
+.map-title{font-family:'Noto Serif KR',serif;color:var(--paper);font-size:.9rem;font-weight:300;}
+.map-legend{display:flex;gap:.7rem;padding:.4rem 1.1rem .5rem;background:rgba(17,17,17,.9);overflow-x:auto;scrollbar-width:none;}
+.map-legend::-webkit-scrollbar{display:none;}
+.legend-chip{display:flex;align-items:center;gap:.3rem;font-size:.62rem;color:rgba(245,240,232,.45);white-space:nowrap;cursor:pointer;padding:.18rem .5rem;border-radius:10px;border:1px solid rgba(245,240,232,.1);transition:all .2s;}
+.legend-chip.active{background:rgba(201,162,39,.12);border-color:rgba(201,162,39,.3);color:var(--gold);}
+.legend-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+#leaflet-map{flex:1;min-height:0;}
+.map-spot-popup{font-family:'Noto Serif KR',serif;}
+.map-spot-popup img{width:100%;height:80px;object-fit:cover;border-radius:4px;margin-bottom:.4rem;}
+.map-spot-popup .popup-name{font-size:.85rem;color:#1a1208;font-weight:600;margin-bottom:.15rem;}
+.map-spot-popup .popup-meta{font-size:.7rem;color:#8b6914;}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</head>
+<body>
+
+<div class="flash-overlay" id="flash"></div>
+<div class="toast" id="toast"></div>
+<input type="file" class="hidden-input" id="file-img" accept="image/*" multiple>
+<input type="file" class="hidden-input" id="file-audio" accept="audio/*">
+<audio id="bg-audio" style="display:none;"></audio>
+
+<!-- ══ 권한 팝업 ══ -->
+<div class="perm-overlay" id="perm-overlay">
+  <div class="perm-card" id="perm-request">
+    <div class="perm-hdr"><div class="perm-icon">📷</div><div class="perm-ttl">카메라 접근 권한</div><div class="perm-sub">旅 여행기 앱이 요청합니다</div></div>
+    <div class="perm-bd">
+      <div class="perm-list">
+        <div class="perm-item"><span>📷</span><span>여행 순간을 사진으로 담기 위해 카메라가 필요합니다</span></div>
+        <div class="perm-item"><span>📍</span><span>GPS를 이용해 촬영 위치별로 스팟을 자동 분류합니다</span></div>
+        <div class="perm-item"><span>🔒</span><span>모든 데이터는 기기에만 저장됩니다</span></div>
+      </div>
+      <div class="perm-notice">권한은 언제든지 브라우저 설정에서 변경할 수 있습니다</div>
+      <div class="perm-btns">
+        <button class="btn-perm-allow" onclick="requestCameraPermission()">📷 카메라 허용하기</button>
+        <button class="btn-perm-deny" onclick="denyCamera()">허용하지 않음</button>
+      </div>
+    </div>
+  </div>
+  <div class="perm-card" id="perm-iframe" style="display:none;">
+    <div class="perm-hdr"><div class="perm-icon">⚠️</div><div class="perm-ttl">직접 실행 필요</div><div class="perm-sub">미리보기에서는 카메라가 차단됩니다</div></div>
+    <div class="perm-iframe-bd">
+      <div class="iframe-box"><div class="iframe-box-ttl">📌 파일을 직접 열어주세요</div>
+        <div class="step-row"><span class="step-n">1</span><span>HTML 파일 다운로드</span></div>
+        <div class="step-row"><span class="step-n">2</span><span>스마트폰 <b>Chrome / Safari</b>로 열기</span></div>
+        <div class="step-row"><span class="step-n">3</span><span><b>카메라 권한 허용</b> → 정상 작동</span></div>
+      </div>
+      <button class="btn-perm-deny" onclick="denyCamera()">카메라 없이 둘러보기</button>
+    </div>
+  </div>
+  <div class="perm-card" id="perm-denied" style="display:none;">
+    <div class="perm-hdr"><div class="perm-icon">🚫</div><div class="perm-ttl">카메라 권한 차단됨</div><div class="perm-sub">직접 허용해 주세요</div></div>
+    <div class="perm-denied-bd">
+      <div id="guide-chrome"><div class="denied-tag">Chrome (Android · PC)</div>
+        <div class="steps-box">
+          <div class="step-row"><span class="step-n">1</span><span>주소창 왼쪽 <b>🔒 자물쇠</b> 탭</span></div>
+          <div class="step-row"><span class="step-n">2</span><span><b>사이트 설정 → 카메라 → 허용</b></span></div>
+          <div class="step-row"><span class="step-n">3</span><span>새로고침 후 재시도</span></div>
+        </div>
+      </div>
+      <div id="guide-safari" style="display:none;"><div class="denied-tag">Safari (iPhone · iPad)</div>
+        <div class="steps-box">
+          <div class="step-row"><span class="step-n">1</span><span>iPhone <b>설정 앱</b> 열기</span></div>
+          <div class="step-row"><span class="step-n">2</span><span><b>Safari → 카메라 → 허용</b></span></div>
+          <div class="step-row"><span class="step-n">3</span><span>아래 버튼 탭</span></div>
+        </div>
+      </div>
+      <button class="btn-perm-retry" onclick="retryCamera()">🔄 다시 시도하기</button>
+      <button class="btn-perm-deny" onclick="denyCamera()">카메라 없이 계속</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ HOME ══ -->
+<div class="screen active" id="home">
+  <div class="home-grain"></div>
+  <div class="home-content">
+    <div class="home-kanji">旅</div>
+    <div class="home-title">나만의 여행기</div>
+    <div class="home-sub">AI Travel Journal</div>
+    <div class="home-btns">
+      <button class="btn-start" onclick="startNewJourney()">새 여행 시작</button>
+      <button class="btn-resume" id="btn-resume" onclick="resumeJourney()">이어서 편집하기</button>
+      <div class="home-saved-info" id="home-saved-info"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CAPTURE ══ -->
+<div class="screen" id="capture">
+  <div class="cap-header">
+    <button onclick="goHome()" style="background:none;border:none;color:rgba(245,240,232,.4);font-size:.95rem;cursor:pointer;">←</button>
+    <div class="cap-title" id="cap-trip-name">여행기</div>
+    <div class="cap-right">
+      <div class="cap-count" id="moment-count">0 스팟</div>
+      <button class="btn-save-draft" onclick="saveDraft()">💾</button>
+    </div>
+  </div>
+  <div id="video-container">
+    <video id="video" autoplay playsinline muted></video>
+    <canvas id="canvas"></canvas>
+    <div class="vignette"></div>
+  </div>
+
+  <!-- GPS 상태바 -->
+  <div class="gps-bar">
+    <div class="gps-dot" id="gps-dot"></div>
+    <div class="gps-text" id="gps-text">GPS 준비 중...</div>
+    <button class="btn-gps-group" id="btn-gps-group" onclick="triggerAutoGroup()">📍 자동 그룹</button>
+  </div>
+
+  <!-- 스팟 목록 -->
+  <div class="spots-section">
+    <div class="spots-hdr">
+      <span class="spots-label">여행 스팟</span>
+      <div class="spots-hdr-btns">
+        <button class="btn-auto-group" onclick="openAutoGroupModal()">📍 GPS 자동 그룹</button>
+        <button class="btn-add-spot" onclick="addNewSpot()">＋ 추가</button>
+      </div>
+    </div>
+    <div class="spots-list" id="spots-list">
+      <div class="no-spots" id="no-spots-msg">📍 GPS 자동 그룹 또는 직접 추가하세요</div>
+    </div>
+  </div>
+
+  <div class="cap-controls">
+    <div class="ctrl-left">
+      <button class="btn-mic" id="voice-btn" onclick="openVoiceModal()">🎤</button>
+      <button class="btn-import" onclick="$('file-img').click()">＋ 사진/음성</button>
+    </div>
+    <button class="btn-shutter" onclick="takePhoto()"></button>
+    <button class="btn-gen" id="gen-btn" disabled onclick="generateJournal()">✦ 여행기<br>만들기</button>
+
+  <!-- 하단 네비게이션 -->
+  <div style="background:rgba(10,10,10,.97);border-top:1px solid rgba(255,255,255,.06);display:flex;padding:.3rem 0 .5rem;">
+    <button onclick="showScreen('capture')" class="nav-tab-btn" id="nav-capture" style="flex:1;background:none;border:none;color:var(--gold);display:flex;flex-direction:column;align-items:center;gap:.18rem;cursor:pointer;padding:.3rem 0;">
+      <span style="font-size:1.1rem;">📷</span><span style="font-size:.55rem;color:var(--gold);letter-spacing:.05em;">촬영</span>
+    </button>
+    <button onclick="openTimeline()" class="nav-tab-btn" id="nav-timeline" style="flex:1;background:none;border:none;color:rgba(245,240,232,.35);display:flex;flex-direction:column;align-items:center;gap:.18rem;cursor:pointer;padding:.3rem 0;">
+      <span style="font-size:1.1rem;">📅</span><span style="font-size:.55rem;letter-spacing:.05em;">타임라인</span>
+    </button>
+    <button onclick="openMapView()" class="nav-tab-btn" id="nav-map" style="flex:1;background:none;border:none;color:rgba(245,240,232,.35);display:flex;flex-direction:column;align-items:center;gap:.18rem;cursor:pointer;padding:.3rem 0;">
+      <span style="font-size:1.1rem;">🗺️</span><span style="font-size:.55rem;letter-spacing:.05em;">지도</span>
+    </button>
+    <button onclick="openStats()" class="nav-tab-btn" id="nav-stats" style="flex:1;background:none;border:none;color:rgba(245,240,232,.35);display:flex;flex-direction:column;align-items:center;gap:.18rem;cursor:pointer;padding:.3rem 0;">
+      <span style="font-size:1.1rem;">📊</span><span style="font-size:.55rem;letter-spacing:.05em;">통계</span>
+    </button>
+    <button onclick="generateJournal()" class="nav-tab-btn" id="nav-journal" style="flex:1;background:none;border:none;color:rgba(245,240,232,.35);display:flex;flex-direction:column;align-items:center;gap:.18rem;cursor:pointer;padding:.3rem 0;">
+      <span style="font-size:1.1rem;">✦</span><span style="font-size:.55rem;letter-spacing:.05em;">여행기</span>
+    </button>
+  </div>
+</div>
+
+
+<!-- ══ 여행 이름 모달 ══ -->
+<div class="modal-overlay" id="trip-name-modal">
+  <div class="sheet"><div class="sheet-pad">
+    <div class="sheet-hdr"><div class="sheet-title">✦ 새 여행</div><button class="sheet-close" onclick="$('trip-name-modal').classList.remove('open')">✕</button></div>
+    <div class="field-lbl">여행 이름</div>
+    <input class="field-input" id="trip-name-input" placeholder="예) 제주 봄 여행, 도쿄 3박 4일..." maxlength="30">
+    <div class="modal-btns">
+      <button class="btn-m btn-cancel" onclick="$('trip-name-modal').classList.remove('open')">취소</button>
+      <button class="btn-m btn-save" onclick="confirmTripName()">시작하기</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- ══ 음성 코멘트 모달 ══ -->
+<div class="modal-overlay" id="voice-modal">
+  <div class="sheet"><div class="sheet-pad">
+    <div class="sheet-hdr"><div class="sheet-title">🎤 음성 코멘트</div><button class="sheet-close" onclick="closeVoiceModal()">✕</button></div>
+    <div class="tb-row">
+      <button class="btn-stt" id="btn-stt-vm" onclick="toggleSTT('voice-text','stt-st-vm','btn-stt-vm','stt-lbl-vm')">🎙️ <span id="stt-lbl-vm">음성입력</span></button>
+      <button class="btn-tts" id="btn-tts-vm" onclick="toggleTTS('voice-text','btn-tts-vm')">🔊 듣기</button>
+    </div>
+    <textarea class="field-input" id="voice-text" placeholder="이 순간의 느낌을 적거나, 🎙️로 말해보세요..."></textarea>
+    <div class="stt-st" id="stt-st-vm"></div>
+    <div class="field-lbl" style="margin-top:.45rem;">오디오 첨부</div>
+    <div class="audio-row">
+      <div class="audio-prev" id="vm-audio-name">없음</div>
+      <button class="btn-audio-imp" onclick="triggerAudioImport('voice')">📂</button>
+      <button class="btn-audio-clr" id="vm-audio-clear" onclick="clearVoiceAudio()" style="display:none;">✕</button>
+    </div>
+    <div class="modal-btns">
+      <button class="btn-m btn-cancel" onclick="closeVoiceModal()">취소</button>
+      <button class="btn-m btn-save" onclick="saveVoiceComment()">저장</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- ══ 스팟 편집 모달 ══ -->
+<div class="modal-overlay" id="spot-modal">
+  <div class="sheet"><div class="sheet-pad">
+    <div class="sheet-hdr"><div class="sheet-title" id="spot-modal-title">스팟 편집</div><button class="sheet-close" onclick="closeSpotModal()">✕</button></div>
+    <div class="field-lbl">스팟 이름</div>
+    <input class="field-input" id="spot-name-input" placeholder="예) 광안리 해변, 명동 칼국수집...">
+    <div class="field-lbl">사진</div>
+    <div class="photos-grid-edit" id="spot-photos-grid"></div>
+    <div class="field-lbl">오디오</div>
+    <div id="spot-audio-player"></div>
+    <div id="spot-audio-add"><button onclick="triggerAudioImport('spot')" style="background:rgba(74,103,65,.09);border:1px dashed rgba(74,103,65,.35);color:#a8d4a0;padding:.42rem .7rem;border-radius:4px;font-size:.68rem;cursor:pointer;width:100%;text-align:center;margin-bottom:.85rem;">＋ 오디오 파일 첨부</button></div>
+    <div class="field-lbl">코멘트
+      <div class="tb-row" style="margin-bottom:0;">
+        <button class="btn-stt" id="btn-stt-sm" onclick="toggleSTT('spot-voice-input','stt-st-sm','btn-stt-sm','stt-lbl-sm')">🎙️ <span id="stt-lbl-sm">음성입력</span></button>
+        <button class="btn-tts" id="btn-tts-sm" onclick="toggleTTS('spot-voice-input','btn-tts-sm')">🔊</button>
+      </div>
+    </div>
+    <textarea class="field-input" id="spot-voice-input" placeholder="이 장소에 대한 메모..."></textarea>
+    <div class="stt-st" id="stt-st-sm" style="margin-bottom:.45rem;"></div>
+    <div class="modal-btns">
+      <button class="btn-m btn-cancel" onclick="deleteSpotFromModal()" style="background:rgba(196,80,26,.13);color:#e07060;flex:.7;">삭제</button>
+      <button class="btn-m btn-save" onclick="saveSpot()">저장</button>
+    </div>
+  </div></div>
+</div>
+
+<!-- ══ GPS 자동 그룹 모달 ══ -->
+<div class="modal-overlay" id="auto-group-modal">
+  <div class="sheet"><div class="sheet-pad">
+    <div class="sheet-hdr"><div class="sheet-title">📍 GPS 자동 그룹</div><button class="sheet-close" onclick="$('auto-group-modal').classList.remove('open')">✕</button></div>
+    <div id="auto-group-content">
+      <div style="text-align:center;padding:1.5rem 0;color:rgba(245,240,232,.4);font-size:.82rem;">불러오는 중...</div>
+    </div>
+    <div class="modal-btns" id="auto-group-btns" style="display:none;">
+      <button class="btn-m btn-cancel" onclick="$('auto-group-modal').classList.remove('open')">취소</button>
+      <button class="btn-m btn-save" onclick="applyAutoGroups()">스팟으로 추가</button>
+    </div>
+  </div></div>
+</div>
+
+
+<!-- ══ STATS ══ -->
+<div class="screen" id="stats" style="display:none;min-height:100vh;flex-direction:column;">
+  <div class="stats-header">
+    <button onclick="goHome()" style="background:none;border:none;color:rgba(245,240,232,.4);font-size:.95rem;cursor:pointer;">←</button>
+    <div class="stats-title">여행 통계</div>
+    <button onclick="showScreen('capture')" style="background:none;border:none;color:rgba(201,162,39,.7);font-size:.72rem;cursor:pointer;font-family:'Noto Serif KR',serif;">편집 →</button>
+  </div>
+  <div class="stats-body" id="stats-body">
+    <div style="text-align:center;padding:3rem 0;color:rgba(245,240,232,.3);font-size:.82rem;">통계를 불러오는 중...</div>
+  </div>
+</div>
+
+<!-- ══ MAP ══ -->
+<div class="screen" id="map-screen" style="display:none;min-height:100vh;flex-direction:column;">
+  <div class="map-header">
+    <button onclick="showScreen('capture')" style="background:none;border:none;color:rgba(245,240,232,.4);font-size:.95rem;cursor:pointer;">←</button>
+    <div class="map-title">여행 지도</div>
+    <button onclick="centerMap()" style="background:none;border:none;color:rgba(201,162,39,.7);font-size:.72rem;cursor:pointer;">⊙ 전체보기</button>
+  </div>
+  <div class="map-legend" id="map-legend"></div>
+  <div id="leaflet-map" style="flex:1;min-height:300px;"></div>
+</div>
+
+<!-- ══ JOURNAL ══ -->
+<div class="screen" id="journal">
+  <div class="journal-hdr">
+    <div class="journal-hdr-top">
+      <button class="btn-back" onclick="backToCapture()">← 편집</button>
+      <div class="journal-date" id="journal-date"></div>
+      <div class="export-row">
+        <button class="btn-exp-html" onclick="exportHTML()">📄 저장</button>
+        <button class="btn-exp-txt" onclick="exportText()">📋 복사</button>
+      </div>
+    </div>
+    <div class="journal-title-el" id="journal-title">나의 여행</div>
+  </div>
+  <div class="journal-body" id="journal-body">
+    <div class="loading-state"><div class="loading-ring"></div><div class="loading-steps" id="loading-steps">AI가 여행기를 쓰고 있습니다...</div></div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════
+   STATE
+═══════════════════════════════════════ */
+const SAVE_KEY='ryeo_v3';
+const S={
+  tripName:'', spots:[], activeSpotId:null,
+  pendingVoice:'', pendingAudio:null,
+  editingSpotId:null, stream:null,
+  recognition:null, sttTimer:null, isSpeaking:false,
+  journalHTML:'', audioImportTarget:null,
+  gpsPos:null,          // {lat,lng,accuracy,placeName}
+  gpsWatchId:null,
+  pendingGpsPhotos:[],  // [{dataUrl, lat, lng, timestamp}] — 아직 스팟 미배정
+  autoGroupData:[],     // 자동 그룹 미리보기용
+};
+
+const $=id=>document.getElementById(id);
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s=>{s.classList.remove('active');s.style.display='none';});
+  const el=$(id);
+  el.classList.add('active');
+  el.style.display='flex';
+}
+function showToast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2500);}
+
+/* ═══════════════════════════════════════
+   SAVE / LOAD
+═══════════════════════════════════════ */
+function saveDraft(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({tripName:S.tripName,spots:S.spots,activeSpotId:S.activeSpotId,savedAt:new Date().toISOString()}));showToast('💾 저장됐습니다');}
+  catch(e){showToast('저장 공간 부족');}
+}
+function saveDraftSilent(){
+  try{localStorage.setItem(SAVE_KEY,JSON.stringify({tripName:S.tripName,spots:S.spots,activeSpotId:S.activeSpotId,savedAt:new Date().toISOString()}));}catch(e){}
+}
+function loadDraft(){try{const r=localStorage.getItem(SAVE_KEY);return r?JSON.parse(r):null;}catch(e){return null;}}
+function clearDraft(){localStorage.removeItem(SAVE_KEY);}
+function checkSavedJourney(){
+  const d=loadDraft();
+  if(!d||!d.spots||!d.spots.length)return;
+  $('btn-resume').style.display='block';
+  $('home-saved-info').style.display='block';
+  $('home-saved-info').textContent=`"${d.tripName||'이전 여행'}" · ${d.spots.length}개 스팟 · ${new Date(d.savedAt).toLocaleDateString('ko-KR',{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}`;
+}
+
+/* ═══════════════════════════════════════
+   NAVIGATION
+═══════════════════════════════════════ */
+function goHome(){stopCamera();stopGPS();stopAllAudio();showScreen('home');document.getElementById('home').style.display='flex';
+checkSavedJourney();}
+function backToCapture(){stopAllAudio();showScreen('capture');}
+function startNewJourney(){$('trip-name-input').value='';$('trip-name-modal').classList.add('open');setTimeout(()=>$('trip-name-input').focus(),300);}
+function confirmTripName(){
+  clearDraft();S.tripName=$('trip-name-input').value.trim()||'나의 여행';S.spots=[];S.activeSpotId=null;S.pendingVoice='';S.pendingAudio=null;
+  $('trip-name-modal').classList.remove('open');initCapture();
+}
+function resumeJourney(){const d=loadDraft();if(!d)return;S.tripName=d.tripName||'나의 여행';S.spots=d.spots||[];S.activeSpotId=d.activeSpotId||null;initCapture();}
+function initCapture(){
+  $('cap-trip-name').textContent=S.tripName;renderSpots();updateCount();
+  $('gen-btn').disabled=S.spots.length===0;$('voice-btn').classList.remove('has-comment');
+  S.pendingVoice='';S.pendingAudio=null;
+  showScreen('capture');startCamera();startGPS();
+  clearInterval(window._autoSave);window._autoSave=setInterval(()=>{if(S.spots.length)saveDraftSilent();},30000);
+}
+
+/* ═══════════════════════════════════════
+   GPS
+═══════════════════════════════════════ */
+const GPS_CLUSTER_DIST=200; // 200m 이내 같은 스팟
+
+function startGPS(){
+  if(!navigator.geolocation){updateGPSBar(false,'GPS를 지원하지 않는 기기입니다');return;}
+  updateGPSBar('searching','위치 확인 중...');
+  S.gpsWatchId=navigator.geolocation.watchPosition(
+    pos=>{
+      S.gpsPos={lat:pos.coords.latitude,lng:pos.coords.longitude,accuracy:pos.coords.accuracy};
+      reverseGeocode(S.gpsPos.lat,S.gpsPos.lng).then(name=>{
+        S.gpsPos.placeName=name;
+        updateGPSBar(true,`${name} (±${Math.round(pos.coords.accuracy)}m)`);
+        // GPS 그룹 버튼 표시
+        if(S.pendingGpsPhotos.length>0){$('btn-gps-group').style.display='block';}
+      });
+    },
+    err=>{updateGPSBar(false,'GPS 사용 불가 (권한 허용 필요)');},
+    {enableHighAccuracy:true,timeout:15000,maximumAge:5000}
+  );
+}
+function stopGPS(){if(S.gpsWatchId){navigator.geolocation.clearWatch(S.gpsWatchId);S.gpsWatchId=null;}}
+function updateGPSBar(status,text){
+  const dot=$('gps-dot'),txt=$('gps-text');
+  txt.textContent=text;
+  dot.className='gps-dot';
+  if(status===true)dot.classList.add('active');
+  else if(status==='searching')dot.classList.add('searching');
+}
+
+// 역지오코딩 (Nominatim 무료 API)
+async function reverseGeocode(lat,lng){
+  try{
+    const res=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ko`,{headers:{'User-Agent':'ryeo-travel-journal'}});
+    const d=await res.json();
+    const a=d.address||{};
+    return a.tourism||a.amenity||a.shop||a.building||a.road||a.suburb||a.city_district||a.city||a.town||'현재 위치';
+  }catch(e){return '현재 위치';}
+}
+
+// 두 좌표 사이 거리(m) — Haversine
+function haversine(lat1,lng1,lat2,lng2){
+  const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;
+  const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
+  return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+}
+
+// EXIF GPS 추출
+function extractGPS(file){
+  return new Promise(resolve=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      try{
+        const buf=e.target.result,view=new DataView(buf);
+        if(view.getUint16(0)!==0xFFD8){resolve(null);return;}
+        let offset=2;
+        while(offset<buf.byteLength){
+          const marker=view.getUint16(offset);
+          if(marker===0xFFE1){// APP1 (EXIF)
+            const exifData=parseExifGPS(view,offset+10);
+            resolve(exifData);return;
+          }
+          if(offset+2>=buf.byteLength)break;
+          offset+=2+view.getUint16(offset+2);
+        }
+        resolve(null);
+      }catch(e){resolve(null);}
+    };
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+function parseExifGPS(view,start){
+  try{
+    const little=view.getUint16(start)===0x4949;
+    const ifdOffset=view.getUint32(start+4,little);
+    let offset=start+ifdOffset;
+    const entries=view.getUint16(offset,little);
+    let gpsIfdOffset=null;
+    for(let i=0;i<entries;i++){
+      const tag=view.getUint16(offset+2+i*12,little);
+      if(tag===0x8825){gpsIfdOffset=view.getUint32(offset+2+i*12+8,little);break;}
+    }
+    if(!gpsIfdOffset)return null;
+    offset=start+gpsIfdOffset;
+    const gpsEntries=view.getUint16(offset,little);
+    let latRef='',lat=null,lngRef='',lng=null;
+    for(let i=0;i<gpsEntries;i++){
+      const base=offset+2+i*12;
+      const tag=view.getUint16(base,little);
+      const valOffset=view.getUint32(base+8,little);
+      if(tag===1){latRef=String.fromCharCode(view.getUint8(base+8));}
+      else if(tag===2){lat=readRational3(view,start+valOffset,little);}
+      else if(tag===3){lngRef=String.fromCharCode(view.getUint8(base+8));}
+      else if(tag===4){lng=readRational3(view,start+valOffset,little);}
+    }
+    if(lat&&lng){
+      const latDec=(lat[0]+lat[1]/60+lat[2]/3600)*(latRef==='S'?-1:1);
+      const lngDec=(lng[0]+lng[1]/60+lng[2]/3600)*(lngRef==='W'?-1:1);
+      return {lat:latDec,lng:lngDec};
+    }
+    return null;
+  }catch(e){return null;}
+}
+function readRational3(view,offset,little){
+  return [view.getUint32(offset,little)/view.getUint32(offset+4,little),view.getUint32(offset+8,little)/view.getUint32(offset+12,little),view.getUint32(offset+16,little)/view.getUint32(offset+20,little)];
+}
+
+/* ═══════════════════════════════════════
+   AUTO GROUP (GPS 클러스터링)
+═══════════════════════════════════════ */
+async function openAutoGroupModal(){
+  $('auto-group-modal').classList.add('open');
+  $('auto-group-btns').style.display='none';
+  $('auto-group-content').innerHTML='<div style="text-align:center;padding:1.5rem 0;color:rgba(245,240,232,.4);font-size:.82rem;font-family:Noto Sans KR,sans-serif;">📂 사진을 선택해 GPS 분석을 시작합니다</div><div style="margin-top:.5rem;text-align:center;"><button onclick="triggerGPSImport()" style="background:rgba(201,162,39,.12);border:1px solid rgba(201,162,39,.35);color:#c9a227;padding:.55rem 1.2rem;border-radius:5px;font-size:.8rem;cursor:pointer;font-family:Noto Sans KR,sans-serif;">📷 사진 선택 (GPS 분석)</button></div>';
+}
+
+function triggerGPSImport(){
+  S.audioImportTarget='gps';
+  $('file-img').click();
+}
+
+async function analyzePhotosForGrouping(files){
+  $('auto-group-content').innerHTML='<div style="text-align:center;padding:1rem 0;color:rgba(245,240,232,.5);font-size:.78rem;">📍 GPS 데이터 분석 중...<br><span style="font-size:.66rem;opacity:.6;">'+files.length+'장 처리 중</span></div>';
+  const photoData=[];
+  for(const f of files){
+    const gps=await extractGPS(f);
+    const dataUrl=await new Promise(r=>{const fr=new FileReader();fr.onload=e=>r(e.target.result);fr.readAsDataURL(f);});
+    photoData.push({dataUrl,gps,name:f.name,timestamp:f.lastModified||Date.now()});
+  }
+  // 클러스터링
+  const clusters=[];
+  for(const p of photoData){
+    if(!p.gps){// GPS 없는 사진 → '기타' 클러스터
+      let misc=clusters.find(c=>c.name==='GPS 없음');
+      if(!misc){misc={name:'GPS 없음',photos:[],lat:null,lng:null};clusters.push(misc);}
+      misc.photos.push(p);continue;
+    }
+    let found=false;
+    for(const c of clusters){
+      if(!c.lat)continue;
+      if(haversine(p.gps.lat,p.gps.lng,c.lat,c.lng)<GPS_CLUSTER_DIST){
+        c.photos.push(p);
+        // 클러스터 중심 업데이트
+        c.lat=(c.lat*(c.photos.length-1)+p.gps.lat)/c.photos.length;
+        c.lng=(c.lng*(c.photos.length-1)+p.gps.lng)/c.photos.length;
+        found=true;break;
+      }
+    }
+    if(!found)clusters.push({name:'',photos:[p],lat:p.gps.lat,lng:p.gps.lng});
+  }
+  // 역지오코딩으로 이름 가져오기
+  $('auto-group-content').innerHTML='<div style="text-align:center;padding:1rem 0;color:rgba(245,240,232,.5);font-size:.78rem;">🗺️ 장소 이름 조회 중...<br><span style="font-size:.66rem;opacity:.6;">'+clusters.length+'개 위치</span></div>';
+  for(const c of clusters){
+    if(c.lat){c.name=await reverseGeocode(c.lat,c.lng);}
+    await new Promise(r=>setTimeout(r,600));// Nominatim rate limit
+  }
+  S.autoGroupData=clusters;
+  renderAutoGroupPreview(clusters);
+}
+
+function renderAutoGroupPreview(clusters){
+  if(!clusters.length){$('auto-group-content').innerHTML='<div style="text-align:center;padding:1rem 0;color:rgba(245,240,232,.35);font-size:.78rem;">GPS 데이터가 없습니다</div>';return;}
+  let html='<div class="group-preview">';
+  clusters.forEach((c,i)=>{
+    const thumb=c.photos[0];
+    html+=`<div class="group-item">
+      ${thumb?`<img class="group-thumb" src="${thumb.dataUrl}">`:`<div class="group-thumb-empty">📍</div>`}
+      <div class="group-info">
+        <input class="group-name-input" id="group-name-${i}" value="${c.name}" placeholder="스팟 이름...">
+        <div class="group-meta">${c.photos.length}장 · ${c.lat?`${c.lat.toFixed(4)},${c.lng.toFixed(4)}`:'GPS 없음'}</div>
+      </div>
+    </div>`;
+  });
+  html+='</div>';
+  $('auto-group-content').innerHTML=html;
+  $('auto-group-btns').style.display='flex';
+}
+
+function applyAutoGroups(){
+  S.autoGroupData.forEach((c,i)=>{
+    const name=$(`group-name-${i}`)?.value.trim()||c.name||'스팟';
+    const spot={id:uid(),name,photos:c.photos.map(p=>({dataUrl:p.dataUrl})),voice:'',audioName:'',audioDataUrl:'',audioType:'',timestamp:new Date(c.photos[0]?.timestamp||Date.now()).toISOString(),hasGPS:!!c.lat,lat:c.lat,lng:c.lng};
+    S.spots.push(spot);
+  });
+  if(!S.activeSpotId&&S.spots.length)S.activeSpotId=S.spots[S.spots.length-1].id;
+  $('auto-group-modal').classList.remove('open');
+  renderSpots();updateCount();$('gen-btn').disabled=false;
+  showToast(`📍 ${S.autoGroupData.length}개 스팟이 자동 생성됐습니다`);
+}
+function triggerAutoGroup(){openAutoGroupModal();}
+
+/* ═══════════════════════════════════════
+   CAMERA
+═══════════════════════════════════════ */
+function isSafariBrowser(){return /Safari/i.test(navigator.userAgent)&&!/Chrome/i.test(navigator.userAgent);}
+function isIframeEnv(){try{return window.self!==window.top;}catch(e){return true;}}
+function showPermCard(id){['perm-request','perm-iframe','perm-denied'].forEach(c=>$(c).style.display=c===id?'block':'none');$('perm-overlay').classList.add('open');}
+function closePermPopup(){$('perm-overlay').classList.remove('open');}
+function showDeniedCard(){$('guide-safari').style.display=isSafariBrowser()?'block':'none';$('guide-chrome').style.display=isSafariBrowser()?'none':'block';showPermCard('perm-denied');}
+async function startCamera(){
+  if(isIframeEnv()){showPermCard('perm-iframe');return;}
+  if(navigator.permissions){try{const s=await navigator.permissions.query({name:'camera'});if(s.state==='granted'){await doStartCamera();return;}if(s.state==='denied'){showDeniedCard();return;}}catch(e){}}
+  showPermCard('perm-request');
+}
+async function requestCameraPermission(){await doStartCamera();}
+async function retryCamera(){await doStartCamera();}
+async function doStartCamera(){
+  try{S.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});$('video').srcObject=S.stream;closePermPopup();showToast('📷 카메라 연결');}
+  catch(e){const n=e.name||'';if(n==='NotAllowedError'||n==='PermissionDeniedError')showDeniedCard();else if(n==='NotFoundError'){showToast('카메라 없음');closePermPopup();}else showDeniedCard();}
+}
+function denyCamera(){closePermPopup();showToast('카메라 없이 사용합니다');}
+function stopCamera(){if(S.stream){S.stream.getTracks().forEach(t=>t.stop());S.stream=null;}}
+
+/* ═══════════════════════════════════════
+   PHOTO CAPTURE
+═══════════════════════════════════════ */
+function takePhoto(){
+  const v=$('video'),c=$('canvas');
+  if(!v.videoWidth){showToast('카메라가 연결되지 않았습니다');return;}
+  c.width=v.videoWidth;c.height=v.videoHeight;c.getContext('2d').drawImage(v,0,0);
+  const flash=$('flash');flash.classList.remove('flash');void flash.offsetWidth;flash.classList.add('flash');setTimeout(()=>flash.classList.remove('flash'),300);
+  const dataUrl=c.toDataURL('image/jpeg',.85);
+  addPhotoToActiveSpot(dataUrl);
+}
+
+function addPhotoToActiveSpot(dataUrl){
+  if(!S.activeSpotId){
+    // GPS가 있으면 근처 스팟 찾기
+    if(S.gpsPos){
+      const nearby=S.spots.find(sp=>sp.lat&&haversine(S.gpsPos.lat,S.gpsPos.lng,sp.lat,sp.lng)<GPS_CLUSTER_DIST);
+      if(nearby){S.activeSpotId=nearby.id;showToast(`📍 "${nearby.name}"에 추가됐습니다`);}
+    }
+    if(!S.activeSpotId){
+      const spot={id:uid(),name:S.gpsPos?.placeName||'스팟 '+(S.spots.length+1),photos:[],voice:S.pendingVoice,audioName:S.pendingAudio?.name||'',audioDataUrl:S.pendingAudio?.dataUrl||'',audioType:S.pendingAudio?.type||'',timestamp:new Date().toISOString(),hasGPS:!!S.gpsPos,lat:S.gpsPos?.lat||null,lng:S.gpsPos?.lng||null};
+      S.spots.push(spot);S.activeSpotId=spot.id;S.pendingVoice='';S.pendingAudio=null;$('voice-btn').classList.remove('has-comment');
+    }
+  } else {
+    const sp=getSpot(S.activeSpotId);
+    if(sp&&!sp.voice&&S.pendingVoice){sp.voice=S.pendingVoice;S.pendingVoice='';$('voice-btn').classList.remove('has-comment');}
+    if(sp&&!sp.audioName&&S.pendingAudio){sp.audioName=S.pendingAudio.name;sp.audioDataUrl=S.pendingAudio.dataUrl;sp.audioType=S.pendingAudio.type;S.pendingAudio=null;}
+    // GPS 위치 업데이트
+    if(sp&&S.gpsPos&&!sp.lat){sp.lat=S.gpsPos.lat;sp.lng=S.gpsPos.lng;sp.hasGPS=true;}
+  }
+  const sp=getSpot(S.activeSpotId);
+  if(sp){sp.photos.push({dataUrl});}
+  renderSpots();updateCount();$('gen-btn').disabled=false;
+  showToast('📸 사진이 추가됐습니다');
+}
+
+/* ═══════════════════════════════════════
+   SPOT MANAGEMENT
+═══════════════════════════════════════ */
+function getSpot(id){return S.spots.find(s=>s.id===id);}
+function getActiveSpot(){return getSpot(S.activeSpotId);}
+
+function addNewSpot(){
+  const spot={id:uid(),name:S.gpsPos?.placeName||'스팟 '+(S.spots.length+1),photos:[],voice:'',audioName:'',audioDataUrl:'',audioType:'',timestamp:new Date().toISOString(),hasGPS:!!S.gpsPos,lat:S.gpsPos?.lat||null,lng:S.gpsPos?.lng||null};
+  S.spots.push(spot);S.activeSpotId=spot.id;renderSpots();updateCount();openSpotModal(spot.id);
+}
+function deleteSpot(id){
+  S.spots=S.spots.filter(s=>s.id!==id);
+  if(S.activeSpotId===id)S.activeSpotId=S.spots.length?S.spots[S.spots.length-1].id:null;
+  renderSpots();updateCount();$('gen-btn').disabled=!S.spots.length;showToast('삭제됐습니다');
+}
+function updateCount(){$('moment-count').textContent=S.spots.length+' 스팟';}
+
+function renderSpots(){
+  const list=$('spots-list');
+  list.querySelectorAll('.spot-card').forEach(e=>e.remove());
+  $('no-spots-msg').style.display=S.spots.length?'none':'block';
+  S.spots.forEach(sp=>{
+    const card=document.createElement('div');
+    card.className='spot-card'+(sp.id===S.activeSpotId?' active-spot':'');
+    const thumb=sp.photos[0];
+    const badges=[];
+    if(sp.id===S.activeSpotId)badges.push('<span class="spot-badge active">● 현재</span>');
+    if(sp.hasGPS)badges.push('<span class="spot-badge gps">📍 GPS</span>');
+    if(sp.voice)badges.push('<span class="spot-badge voice">🎤</span>');
+    if(sp.photos.length)badges.push(`<span class="spot-badge">${sp.photos.length}장</span>`);
+    card.innerHTML=`<div class="spot-card-inner">
+      <div class="spot-thumb">${thumb?`<img src="${thumb.dataUrl}">${sp.photos.length>1?`<div class="spot-thumb-count">+${sp.photos.length}</div>`:''}`:'<div class="spot-thumb-empty">📍</div>'}</div>
+      <div class="spot-info"><div class="spot-name">${sp.name}</div><div class="spot-meta">${badges.join('')}</div></div>
+      <div class="spot-actions">
+        <button class="spot-act-btn" onclick="openSpotModal('${sp.id}')">✏️</button>
+        <button class="spot-act-btn" onclick="S.activeSpotId='${sp.id}';renderSpots();showToast('활성 스팟 변경')">📍</button>
+        <button class="spot-act-btn del" onclick="deleteSpot('${sp.id}')">🗑</button>
+      </div>
+    </div>`;
+    list.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════
+   FILE IMPORT
+═══════════════════════════════════════ */
+function triggerAudioImport(t){S.audioImportTarget=t;$('file-audio').click();}
+
+$('file-img').addEventListener('change',async function(e){
+  const files=Array.from(e.target.files);if(!files.length)return;
+  if(S.audioImportTarget==='gps'){S.audioImportTarget=null;analyzePhotosForGrouping(files);this.value='';return;}
+  let n=0;
+  for(const f of files){
+    await new Promise(r=>{const fr=new FileReader();fr.onload=ev=>{addPhotoToActiveSpot(ev.target.result);n++;r();};fr.readAsDataURL(f);});
+  }
+  showToast(`🖼️ ${n}장 추가됐습니다`);this.value='';
+});
+
+$('file-audio').addEventListener('change',function(e){
+  const f=e.target.files[0];if(!f)return;
+  const fr=new FileReader();
+  fr.onload=ev=>{
+    const obj={name:f.name,dataUrl:ev.target.result,type:f.type};
+    if(S.audioImportTarget==='voice'){S._pendingVoiceAudio=obj;$('vm-audio-name').textContent=f.name;$('vm-audio-clear').style.display='inline';showToast('🎵 첨부됐습니다');}
+    else if(S.audioImportTarget==='spot'&&S.editingSpotId){const sp=getSpot(S.editingSpotId);if(sp){sp.audioName=obj.name;sp.audioDataUrl=obj.dataUrl;sp.audioType=obj.type;}renderSpotAudioInModal(S.editingSpotId);showToast('🎵 연결됐습니다');}
+  };
+  fr.readAsDataURL(f);this.value='';
+});
+
+/* ═══════════════════════════════════════
+   VOICE MODAL
+═══════════════════════════════════════ */
+function openVoiceModal(){stopAllAudio();$('voice-text').value=S.pendingVoice;$('stt-st-vm').textContent='';S._pendingVoiceAudio=null;$('vm-audio-name').textContent='없음';$('vm-audio-clear').style.display='none';$('voice-modal').classList.add('open');}
+function closeVoiceModal(){if(S.recognition)S.recognition.stop();stopAllAudio();$('voice-modal').classList.remove('open');}
+function clearVoiceAudio(){S._pendingVoiceAudio=null;$('vm-audio-name').textContent='없음';$('vm-audio-clear').style.display='none';}
+function saveVoiceComment(){S.pendingVoice=$('voice-text').value.trim();S.pendingAudio=S._pendingVoiceAudio||null;closeVoiceModal();$('voice-btn').classList.toggle('has-comment',!!(S.pendingVoice||S.pendingAudio));if(S.pendingVoice||S.pendingAudio)showToast('🎤 준비됐습니다');}
+
+/* ═══════════════════════════════════════
+   SPOT EDIT MODAL
+═══════════════════════════════════════ */
+function openSpotModal(id){
+  S.editingSpotId=id;const sp=getSpot(id);if(!sp)return;
+  $('spot-name-input').value=sp.name;$('spot-voice-input').value=sp.voice||'';$('stt-st-sm').textContent='';
+  renderSpotPhotosGrid(id);renderSpotAudioInModal(id);$('spot-modal').classList.add('open');
+}
+function closeSpotModal(){if(S.recognition)S.recognition.stop();stopAllAudio();$('spot-modal').classList.remove('open');S.editingSpotId=null;}
+function saveSpot(){const sp=getSpot(S.editingSpotId);if(!sp)return;sp.name=$('spot-name-input').value.trim()||'스팟';sp.voice=$('spot-voice-input').value.trim();closeSpotModal();renderSpots();showToast('저장됐습니다');}
+function deleteSpotFromModal(){const id=S.editingSpotId;closeSpotModal();deleteSpot(id);}
+function renderSpotPhotosGrid(id){
+  const sp=getSpot(id),grid=$('spot-photos-grid');grid.innerHTML='';
+  sp.photos.forEach((p,i)=>{const w=document.createElement('div');w.className='photo-wrap-edit';w.innerHTML=`<img src="${p.dataUrl}"><button class="photo-del-btn" onclick="removeSpotPhoto('${id}',${i})">✕</button>`;grid.appendChild(w);});
+  const add=document.createElement('div');add.className='photo-add-btn';add.textContent='＋';add.onclick=()=>{S.editingSpotId=id;$('file-img').click();};grid.appendChild(add);
+}
+function removeSpotPhoto(id,idx){const sp=getSpot(id);if(!sp)return;sp.photos.splice(idx,1);renderSpotPhotosGrid(id);renderSpots();}
+function renderSpotAudioInModal(id){
+  const sp=getSpot(id),player=$('spot-audio-player'),add=$('spot-audio-add');
+  if(sp?.audioName){player.style.display='block';add.style.display='none';player.innerHTML=`<div class="audio-player-box"><button class="audio-play-btn" onclick="playAudioDataUrl('${sp.audioDataUrl}',this)">▶</button><div class="audio-nm">${sp.audioName}</div><button class="btn-audio-rm" onclick="removeSpotAudio('${id}')">✕</button></div>`;}
+  else{player.style.display='none';add.style.display='block';}
+}
+function removeSpotAudio(id){const sp=getSpot(id);if(!sp)return;sp.audioName='';sp.audioDataUrl='';sp.audioType='';renderSpotAudioInModal(id);renderSpots();}
+
+/* ═══════════════════════════════════════
+   STT (15초 타임아웃)
+═══════════════════════════════════════ */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+function toggleSTT(taId,stId,btnId,lblId){
+  if(!SR){showToast('음성입력은 Chrome에서 지원됩니다');return;}
+  const btn=$(btnId);
+  if(S.recognition){S.recognition.stop();return;}
+  const recog=new SR();recog.lang='ko-KR';recog.continuous=true;recog.interimResults=true;
+  S.recognition=recog;btn.classList.add('listening');$(lblId).textContent='듣는중…';
+  const sEl=$(stId);sEl.textContent='🔴 말씀하세요… (15초)';sEl.classList.add('active');
+  const ta=$(taId),base=ta.value;
+  S.sttTimer=setTimeout(()=>{if(S.recognition){S.recognition.stop();showToast('⏱ 15초 경과');}},15000);
+  recog.onresult=e=>{let fin='',interim='';for(let i=e.resultIndex;i<e.results.length;i++){const t=e.results[i][0].transcript;if(e.results[i].isFinal)fin+=t;else interim+=t;}ta.value=base+(base&&fin?' ':'')+fin+interim;};
+  recog.onerror=ev=>{const m={'no-speech':'말소리 없음','not-allowed':'마이크 권한 필요','network':'네트워크 오류'};showToast(m[ev.error]||'오류');cleanSTT(btn,lblId,sEl);};
+  recog.onend=()=>cleanSTT(btn,lblId,sEl);recog.start();
+}
+function cleanSTT(btn,lblId,sEl){clearTimeout(S.sttTimer);S.sttTimer=null;S.recognition=null;btn.classList.remove('listening');$(lblId).textContent='음성입력';sEl.textContent='';sEl.classList.remove('active');}
+
+/* ═══════════════════════════════════════
+   TTS
+═══════════════════════════════════════ */
+function stopAllAudio(){if(window.speechSynthesis)window.speechSynthesis.cancel();const bg=$('bg-audio');bg.pause();bg.src='';S.isSpeaking=false;document.querySelectorAll('.btn-tts').forEach(b=>b.classList.remove('speaking'));document.querySelectorAll('.btn-play-voice').forEach(b=>{b.classList.remove('speaking');b.textContent='▶';});document.querySelectorAll('.audio-play-btn,.entry-audio-play').forEach(b=>b.textContent='▶');}
+function toggleTTS(taId,btnId){if(!window.speechSynthesis){showToast('음성 재생 미지원');return;}const text=($(taId)?.value||'').trim();if(!text){showToast('재생할 텍스트 없음');return;}const btn=$(btnId);if(S.isSpeaking){stopAllAudio();return;}stopAllAudio();const utt=new SpeechSynthesisUtterance(text);utt.lang='ko-KR';utt.rate=.9;S.isSpeaking=true;btn.classList.add('speaking');utt.onend=utt.onerror=()=>{S.isSpeaking=false;btn.classList.remove('speaking');};window.speechSynthesis.speak(utt);}
+function playVoiceInJournal(text,btn){if(!window.speechSynthesis)return;if(S.isSpeaking){stopAllAudio();return;}stopAllAudio();const utt=new SpeechSynthesisUtterance(text);utt.lang='ko-KR';utt.rate=.9;S.isSpeaking=true;btn.classList.add('speaking');btn.textContent='■';utt.onend=utt.onerror=()=>{S.isSpeaking=false;btn.classList.remove('speaking');btn.textContent='▶';};window.speechSynthesis.speak(utt);}
+function playAudioDataUrl(dataUrl,btn){if(S.isSpeaking){stopAllAudio();return;}stopAllAudio();const bg=$('bg-audio');bg.src=dataUrl;S.isSpeaking=true;btn.textContent='■';bg.play().catch(()=>{showToast('오디오 재생 오류');stopAllAudio();});bg.onended=()=>{S.isSpeaking=false;btn.textContent='▶';};}
+
+/* ═══════════════════════════════════════
+   GENERATE JOURNAL — AI Vision 포함
+═══════════════════════════════════════ */
+async function generateJournal(){
+  if(!S.spots.length)return;
+  stopAllAudio();showScreen('journal');
+  const now=new Date();
+  $('journal-date').textContent=now.toLocaleDateString('ko-KR',{year:'numeric',month:'long',day:'numeric',weekday:'long'});
+  $('journal-body').innerHTML='<div class="loading-state"><div class="loading-ring"></div><div class="loading-steps" id="loading-steps">사진 분석 중...</div></div>';
+
+  // Step 1: AI Vision으로 각 스팟의 대표 사진 분석
+  const setStep=t=>{const el=$('loading-steps');if(el)el.textContent=t;};
+  const spotAnalyses=[];
+  for(let i=0;i<S.spots.length;i++){
+    const sp=S.spots[i];
+    setStep(`사진 분석 중... (${i+1}/${S.spots.length})`);
+    const analysis=await analyzeSpotPhoto(sp);
+    spotAnalyses.push(analysis);
+  }
+
+  // Step 2: AI 여행기 작성
+  setStep('AI가 여행기를 쓰고 있습니다...');
+  const total=S.spots.length;
+  const desc=S.spots.map((sp,i)=>{
+    const t=new Date(sp.timestamp).toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit'});
+    const pos=i===0?'첫 번째 스팟(여행 시작)':i===total-1?`마지막 스팟(여행 마무리)`:`${i+1}번째 스팟(총 ${total}개 중)`;
+    let line=`[스팟${i+1}: ${sp.name}] ${pos} / ${t} / 사진 ${sp.photos.length}장`;
+    if(spotAnalyses[i])line+=` / 사진 분석: "${spotAnalyses[i]}"`;
+    if(sp.voice)line+=` / 직접 메모: "${sp.voice}"`;
+    if(sp.audioName)line+=` / 오디오: ${sp.audioName}`;
+    if(sp.hasGPS)line+=` / GPS 위치 확인됨`;
+    return line;
+  }).join('\n');
+
+  const prompt=`당신은 섬세하고 감성적인 여행 작가입니다. 아래 여행 스팟 정보(사진 AI 분석 결과 포함)를 바탕으로 각 스팟마다 완전히 다른 감성으로 한국어 여행기를 써주세요.
+
+여행명: ${S.tripName}
+스팟 기록:
+${desc}
+
+규칙:
+1. TITLE: 이 여행을 담은 시적인 제목
+2. 각 스팟마다:
+   SPOT: [스팟 이름 그대로]
+   SCENE: [사진 분석을 반영한 그 장면만의 독창적 캡션 — 한 문장]
+   [본문 3~5문장 — 사진에서 보이는 것들, 분위기, 감각을 구체적으로 묘사]
+3. 스팟별 차별화 필수 (감각·시제·문장구조 모두 다르게)
+4. "직접 메모"가 있으면 그 감정을 본문에 녹여쓰기
+5. 스팟 이름과 사진 분석을 활용해 실제 장소감이 느껴지도록
+6. 상투적 문장 절대 금지
+7. CLOSING: 여행 전체를 마무리하는 여운 있는 한 문장`;
+
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:2500,messages:[{role:'user',content:prompt}]})});
+    const data=await res.json();
+    const text=data.content?.map(c=>c.text||'').join('')||'';
+    if(text)renderJournal(text,spotAnalyses);else renderJournalFallback();
+  }catch(e){renderJournalFallback();}
+}
+
+// AI Vision으로 사진 내용 분석
+async function analyzeSpotPhoto(spot){
+  if(!spot.photos.length)return null;
+  const photo=spot.photos[0].dataUrl;
+  // base64 추출
+  const b64=photo.split(',')[1];
+  const mtype=photo.split(';')[0].split(':')[1]||'image/jpeg';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:200,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:mtype,data:b64}},
+          {type:'text',text:'이 여행 사진에서 보이는 것을 한국어로 간결하게 묘사해주세요. 장소의 특징, 음식, 풍경, 분위기를 50자 이내로. 예: "항구가 내려다보이는 카페, 조용한 오후", "조개탕과 칼국수가 담긴 그릇, 구수한 국물". 묘사만 답하세요.'}
+        ]}]})});
+    const d=await res.json();
+    return d.content?.[0]?.text?.trim()||null;
+  }catch(e){return null;}
+}
+
+/* ═══════════════════════════════════════
+   RENDER JOURNAL
+═══════════════════════════════════════ */
+function renderJournal(text,spotAnalyses){
+  const lines=text.split('\n').map(l=>l.trim()).filter(Boolean);
+  let title=S.tripName||'나의 여행',closing='';
+  const spotBlocks=[];let cur=null,buf=[];
+  for(const l of lines){
+    if(l.startsWith('TITLE:'))title=l.replace('TITLE:','').trim();
+    else if(l.startsWith('CLOSING:'))closing=l.replace('CLOSING:','').trim();
+    else if(l.startsWith('SPOT:')){if(cur)spotBlocks.push({...cur,body:buf.splice(0).join(' ')});cur={spotName:l.replace('SPOT:','').trim(),caption:'',body:''};}
+    else if(l.startsWith('SCENE:')&&cur)cur.caption=l.replace('SCENE:','').trim();
+    else if(cur)buf.push(l);
+  }
+  if(cur)spotBlocks.push({...cur,body:buf.join(' ')});
+  $('journal-title').textContent=title;
+  const body=$('journal-body');body.innerHTML='';
+  S.spots.forEach((sp,i)=>{
+    const block=spotBlocks[i]||{spotName:sp.name,caption:'',body:''};
+    const entry=document.createElement('div');entry.className='journal-entry';
+    entry.style.cssText=`opacity:0;transform:translateY(15px);transition:opacity .5s ${i*.11}s,transform .5s ${i*.11}s;`;
+    const vSafe=(sp.voice||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const hasAI=spotAnalyses&&spotAnalyses[i];
+    let html=`<div class="entry-spot-lbl">${sp.name}${hasAI?`<span class="ai-badge">✦ AI 분석</span>`:''}</div>`;
+    if(sp.photos.length){
+      const cls=sp.photos.length===1?'one':sp.photos.length===2?'two':'multi';
+      html+=`<div class="entry-photos ${cls}">`;
+      sp.photos.forEach((p,pi)=>html+=`<div class="entry-photo-wrap${sp.photos.length>=3&&pi===0?' main-photo':''}"><img class="entry-photo" src="${p.dataUrl}">${pi===0&&block.caption?`<div class="entry-photo-caption">${block.caption}</div>`:''}</div>`);
+      html+=`</div>`;
+    } else if(block.caption)html+=`<div style="font-family:'Noto Serif KR',serif;font-size:.82rem;color:var(--sepia);font-style:italic;margin-bottom:.78rem;padding:.52rem 0;border-bottom:1px solid rgba(139,105,20,.16);">${block.caption}</div>`;
+    if(sp.audioName)html+=`<div class="entry-audio-bar"><button class="entry-audio-play" onclick="playAudioDataUrl('${sp.audioDataUrl}',this)">▶</button><div class="entry-audio-nm">🎵 ${sp.audioName}</div></div>`;
+    if(sp.voice)html+=`<div class="entry-voice-note"><div class="entry-voice-text">${sp.voice}</div><button class="btn-play-voice" onclick="playVoiceInJournal('${vSafe}',this)">▶</button></div>`;
+    if(block.body)html+=`<p class="entry-text">${block.body}</p>`;
+    if(i<S.spots.length-1)html+=`<div class="entry-divider">· · ·</div>`;
+    entry.innerHTML=html;body.appendChild(entry);
+    requestAnimationFrame(()=>setTimeout(()=>{entry.style.opacity='1';entry.style.transform='translateY(0)';},50+i*110));
+  });
+  if(closing){const cl=document.createElement('div');cl.className='journal-closing';cl.innerHTML=closing.replace(/\. /g,'.<br>');body.appendChild(cl);}
+  buildExportHTML(title);
+}
+
+function renderJournalFallback(){
+  const title=S.tripName||'나의 여행';$('journal-title').textContent=title;
+  const body=$('journal-body');body.innerHTML='';
+  const texts=['여행이 시작되는 순간, 공기 속에서 낯선 설렘이 느껴졌다.','발걸음이 멈춘 그 자리에서 시간도 함께 멈춘 듯했다.','여행의 한가운데, 가장 평범한 순간이 가장 선명하게 기억에 남는다.','빛이 달라졌다. 시간이 흐르면서 같은 공간도 전혀 다른 얼굴을 보여준다.','이 맛, 이 냄새, 이 온도. 어떤 기억은 감각으로 새겨진다.','서두르지 않아도 됐다. 천천히 걷고, 오래 바라보는 것만으로 충분했다.','마지막이라는 걸 알면서도 발이 떨어지지 않았다.'];
+  const total=S.spots.length;
+  S.spots.forEach((sp,i)=>{
+    const entry=document.createElement('div');entry.className='journal-entry';
+    const vSafe=(sp.voice||'').replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const ti=total===1?0:i===0?0:i===total-1?6:Math.min(1+i,5);
+    let html=`<div class="entry-spot-lbl">${sp.name}</div>`;
+    if(sp.photos.length){html+=`<div class="entry-photos ${sp.photos.length===1?'one':sp.photos.length===2?'two':'multi'}">`;sp.photos.forEach((p,pi)=>html+=`<div class="entry-photo-wrap${sp.photos.length>=3&&pi===0?' main-photo':''}"><img class="entry-photo" src="${p.dataUrl}"></div>`);html+=`</div>`;}
+    if(sp.audioName)html+=`<div class="entry-audio-bar"><button class="entry-audio-play" onclick="playAudioDataUrl('${sp.audioDataUrl}',this)">▶</button><div class="entry-audio-nm">🎵 ${sp.audioName}</div></div>`;
+    if(sp.voice)html+=`<div class="entry-voice-note"><div class="entry-voice-text">${sp.voice}</div><button class="btn-play-voice" onclick="playVoiceInJournal('${vSafe}',this)">▶</button></div>`;
+    html+=`<p class="entry-text">${texts[ti]}</p>`;
+    if(i<total-1)html+=`<div class="entry-divider">· · ·</div>`;
+    entry.innerHTML=html;body.appendChild(entry);
+  });
+  buildExportHTML(title);
+}
+
+/* ═══════════════════════════════════════
+   EXPORT
+═══════════════════════════════════════ */
+function buildExportHTML(title){
+  const date=$('journal-date').textContent;
+  let entries='';
+  S.spots.forEach((sp,i)=>{
+    entries+=`<div class="entry"><div class="spot-lbl">${sp.name}</div>`;
+    if(sp.photos.length){entries+=`<div class="pg ${sp.photos.length===1?'one':sp.photos.length===2?'two':'multi'}">`;sp.photos.forEach(p=>entries+=`<img src="${p.dataUrl}">`);entries+=`</div>`;}
+    if(sp.audioName)entries+=`<div class="audio-note">🎵 ${sp.audioName}</div>`;
+    if(sp.voice)entries+=`<div class="voice-note">🎤 ${sp.voice}</div>`;
+    const els=document.querySelectorAll('.journal-entry');
+    if(els[i]){const p=els[i].querySelector('.entry-text');const cap=els[i].querySelector('.entry-photo-caption');if(cap)entries+=`<p class="cap">${cap.textContent}</p>`;if(p)entries+=`<p class="body">${p.textContent}</p>`;}
+    entries+=`</div>`;if(i<S.spots.length-1)entries+=`<div class="div">· · ·</div>`;
+  });
+  const cl=document.querySelector('.journal-closing');
+  S.journalHTML=`<!DOCTYPE html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>${title}</title>
+<style>@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@300;400;600&family=DM+Serif+Display:ital@0;1&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}body{font-family:'Noto Serif KR',serif;background:#faf7f2;color:#1a1208;max-width:700px;margin:0 auto;padding:3rem 2rem 5rem;}
+header{text-align:center;margin-bottom:3rem;padding-bottom:2rem;border-bottom:1px solid rgba(139,105,20,.2);}
+.kanji{font-family:'DM Serif Display',serif;font-size:4rem;color:#c9a227;display:block;margin-bottom:.5rem;}
+.cover-title{font-family:'DM Serif Display',serif;font-size:2rem;font-style:italic;margin-bottom:.5rem;}
+.cover-date{font-size:.75rem;color:#8b6914;letter-spacing:.1em;}
+.entry{margin-bottom:3rem;}.spot-lbl{font-size:.62rem;color:#c9a227;letter-spacing:.14em;text-transform:uppercase;margin-bottom:.75rem;text-align:center;}
+.pg{display:grid;gap:.4rem;margin-bottom:1rem;}.pg.one{grid-template-columns:1fr;}.pg.two,.pg.multi{grid-template-columns:1fr 1fr;}
+.pg img{width:100%;border-radius:5px;filter:sepia(10%) contrast(1.05);}
+.voice-note{background:#e8dfc8;border-left:3px solid #c9a227;padding:.6rem .9rem;margin-bottom:.7rem;border-radius:0 3px 3px 0;font-size:.82rem;color:#8b6914;font-style:italic;}
+.audio-note{background:#f0f5ee;border-left:3px solid #4a6741;padding:.5rem .8rem;margin-bottom:.7rem;border-radius:0 3px 3px 0;font-size:.78rem;color:#4a6741;}
+.cap{font-size:.82rem;color:#8b6914;font-style:italic;margin-bottom:.6rem;padding-left:.7rem;border-left:2px solid #c9a227;}
+.body{font-size:1rem;line-height:1.95;font-weight:300;}
+.div{text-align:center;color:#c9a227;letter-spacing:.5rem;margin:2.5rem 0;opacity:.5;}
+.closing{text-align:center;font-style:italic;color:#8b6914;padding-top:2rem;margin-top:2rem;border-top:1px solid rgba(139,105,20,.15);line-height:1.8;}
+@media print{body{padding:1.5rem;}}</style><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+</head>
+<body><header><span class="kanji">旅</span><div class="cover-title">${title}</div><div class="cover-date">${date}</div></header>
+${entries}${cl?`<div class="closing">${cl.textContent}</div>`:''}</body></html>`;
+}
+function exportHTML(){
+  if(!S.journalHTML){showToast('여행기를 먼저 생성해주세요');return;}
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(new Blob([S.journalHTML],{type:'text/html;charset=utf-8'}));
+  a.download=`${S.tripName||'여행기'}_${new Date().toLocaleDateString('ko-KR').replace(/\.\s*/g,'-')}.html`;
+  a.click();URL.revokeObjectURL(a.href);showToast('📄 저장됐습니다');
+}
+function exportText(){
+  const title=$('journal-title').textContent,date=$('journal-date').textContent;
+  const entries=S.spots.map((sp,i)=>{let t=`[${sp.name}]`;if(sp.voice)t+=`\n메모: ${sp.voice}`;if(sp.audioName)t+=`\n오디오: ${sp.audioName}`;const els=document.querySelectorAll('.journal-entry');if(els[i]){const p=els[i].querySelector('.entry-text');if(p)t+=`\n\n${p.textContent}`;}return t;}).join('\n\n─────\n\n');
+  const cl=document.querySelector('.journal-closing');
+  navigator.clipboard?.writeText(`${title}\n${date}\n\n${'─'.repeat(26)}\n\n${entries}${cl?'\n\n─────\n\n'+cl.textContent:''}`).then(()=>showToast('📋 복사됐습니다'));
+}
+
+
+/* ═══════════════════════════════════════
+   TIMELINE VIEW
+═══════════════════════════════════════ */
+function openTimeline(){
+  showScreen('capture');
+  // 타임라인은 capture 화면 스팟 목록을 날짜별로 재정렬해서 보여줌
+  renderTimeline();
+}
+
+function getDateKey(iso){ return iso ? iso.slice(0,10) : '날짜 없음'; }
+function formatDateLabel(key){
+  if(key==='날짜 없음') return key;
+  const d=new Date(key);
+  return d.toLocaleDateString('ko-KR',{month:'long',day:'numeric',weekday:'short'});
+}
+
+function renderTimeline(){
+  var groups={};
+  S.spots.forEach(function(sp){
+    var k=getDateKey(sp.timestamp);
+    if(!groups[k])groups[k]=[];
+    groups[k].push(sp);
+  });
+  var days=Object.keys(groups).sort();
+
+  var existing=document.getElementById('timeline-tabs-el');
+  if(existing)existing.remove();
+  var tabBar=document.createElement('div');
+  tabBar.id='timeline-tabs-el';
+  tabBar.className='timeline-tabs';
+
+  var allTab=document.createElement('button');
+  allTab.className='tab-btn active';
+  allTab.textContent='전체 ('+S.spots.length+')';
+  allTab.onclick=function(){
+    document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+    allTab.classList.add('active');
+    renderSpots();
+  };
+  tabBar.appendChild(allTab);
+
+  days.forEach(function(day,i){
+    var btn=document.createElement('button');
+    btn.className='tab-btn';
+    btn.textContent='Day '+(i+1)+' · '+formatDateLabel(day);
+    var dayIds=groups[day].map(function(s){return s.id;});
+    btn.onclick=function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){b.classList.remove('active');});
+      btn.classList.add('active');
+      renderSpotsFiltered(dayIds);
+    };
+    tabBar.appendChild(btn);
+  });
+
+  var spotsSection=document.querySelector('.spots-section');
+  if(spotsSection) spotsSection.parentNode.insertBefore(tabBar,spotsSection);
+}
+
+
+function renderSpotsFiltered(ids){
+  const list=document.getElementById('spots-list');
+  list.querySelectorAll('.spot-card').forEach(e=>e.remove());
+  document.getElementById('no-spots-msg').style.display=ids.length?'none':'block';
+  S.spots.filter(sp=>ids.includes(sp.id)).forEach(sp=>{
+    const card=document.createElement('div');
+    card.className='spot-card'+(sp.id===S.activeSpotId?' active-spot':'');
+    const thumb=sp.photos[0];
+    const badges=[];
+    if(sp.id===S.activeSpotId)badges.push('<span class="spot-badge active">● 현재</span>');
+    if(sp.hasGPS)badges.push('<span class="spot-badge gps">📍</span>');
+    if(sp.voice)badges.push('<span class="spot-badge voice">🎤</span>');
+    if(sp.photos.length)badges.push(`<span class="spot-badge">${sp.photos.length}장</span>`);
+    card.innerHTML=`<div class="spot-card-inner">
+      <div class="spot-thumb">${thumb?`<img src="${thumb.dataUrl}">${sp.photos.length>1?`<div class="spot-thumb-count">+${sp.photos.length}</div>`:''}`:'<div class="spot-thumb-empty">📍</div>'}</div>
+      <div class="spot-info"><div class="spot-name">${sp.name}</div><div class="spot-meta">${badges.join('')}</div></div>
+      <div class="spot-actions">
+        <button class="spot-act-btn" onclick="openSpotModal('${sp.id}')">✏️</button>
+        <button class="spot-act-btn" onclick="S.activeSpotId='${sp.id}';renderSpots();showToast('활성 스팟 변경')">📍</button>
+        <button class="spot-act-btn del" onclick="deleteSpot('${sp.id}')">🗑</button>
+      </div>
+    </div>`;
+    list.appendChild(card);
+  });
+}
+
+/* ═══════════════════════════════════════
+   STATS VIEW
+═══════════════════════════════════════ */
+function openStats(){
+  showScreen('stats');
+  renderStats();
+}
+
+function renderStats(){
+  const body=document.getElementById('stats-body');
+  if(!S.spots.length){
+    body.innerHTML='<div style="text-align:center;padding:3rem 0;color:rgba(245,240,232,.3);font-size:.82rem;font-family:Noto Sans KR,sans-serif;">아직 기록된 스팟이 없습니다</div>';
+    return;
+  }
+  const totalPhotos=S.spots.reduce(function(a,sp){return a+sp.photos.length;},0);
+  const totalVoice=S.spots.filter(function(sp){return sp.voice;}).length;
+  const totalAudio=S.spots.filter(function(sp){return sp.audioName;}).length;
+  const gpsSpots=S.spots.filter(function(sp){return sp.hasGPS&&sp.lat;});
+  const totalDist=calcTotalDistance(gpsSpots);
+  const timestamps=S.spots.map(function(sp){return new Date(sp.timestamp);}).filter(function(d){return !isNaN(d);});
+  const firstDay=timestamps.length?new Date(Math.min.apply(null,timestamps)):null;
+  const lastDay=timestamps.length?new Date(Math.max.apply(null,timestamps)):null;
+  const dayCount=firstDay&&lastDay?Math.max(1,Math.round((lastDay-firstDay)/(1000*60*60*24))+1):1;
+
+  // 날짜별 그룹
+  var groups={};
+  S.spots.forEach(function(sp){
+    var k=getDateKey(sp.timestamp);
+    if(!groups[k])groups[k]=[];
+    groups[k].push(sp);
+  });
+  var days=Object.keys(groups).sort();
+  var maxPhotosInDay=Math.max.apply(null,days.map(function(d){return groups[d].reduce(function(a,sp){return a+sp.photos.length;},0);})||[0]);
+
+  var dateRangeStr=firstDay&&lastDay
+    ?firstDay.toLocaleDateString('ko-KR',{month:'long',day:'numeric'})+(dayCount>1?' — '+lastDay.toLocaleDateString('ko-KR',{month:'long',day:'numeric'}):'')
+    :'날짜 미상';
+
+  // HTML 조각 조립 (템플릿 리터럴 중첩 없이)
+  var html='';
+  html+='<div class="stats-trip-name">'+(S.tripName||'나의 여행')+'</div>';
+  html+='<div class="stats-date-range">'+dateRangeStr+' · '+dayCount+'일간</div>';
+
+  // 사진 스트립
+  var allPhotos=S.spots.reduce(function(a,sp){return a.concat(sp.photos);},[] ).slice(0,12);
+  if(allPhotos.length){
+    html+='<div class="photo-strip">';
+    allPhotos.forEach(function(p){ html+='<img src="'+p.dataUrl+'" style="width:70px;height:70px;object-fit:cover;border-radius:5px;flex-shrink:0;filter:sepia(12%);">'; });
+    html+='</div>';
+  }
+
+  // 통계 카드
+  var distStr=totalDist>=1?(totalDist.toFixed(1)+' km'):(Math.round(totalDist*1000)+' m');
+  html+='<div class="stats-grid">';
+  html+=statCard('accent','📍',S.spots.length,'방문 스팟',true);
+  html+=statCard('','📸',totalPhotos,'촬영 사진',false);
+  html+=statCard('','🗺️',distStr,'이동 거리',false);
+  html+=statCard('','🎤',(totalVoice+totalAudio),'음성 기록',false);
+  html+=statCard('','📅',dayCount,'여행 일수',false);
+  html+=statCard('','',(dayCount>0?Math.round(totalPhotos/dayCount):0)+'','일평균 사진',false);
+  html+='</div>';
+
+  // 일별 기록
+  html+='<div class="stats-section-title">일별 기록</div>';
+  days.forEach(function(day,i){
+    var daySpots=groups[day];
+    var dayPhotos=daySpots.reduce(function(a,sp){return a+sp.photos.length;},0);
+    var pct=maxPhotosInDay?Math.round(dayPhotos/maxPhotosInDay*100):0;
+    var thumb=null;
+    for(var si=0;si<daySpots.length;si++){if(daySpots[si].photos.length){thumb=daySpots[si].photos[0];break;}}
+    var voiceCount=daySpots.filter(function(s){return s.voice;}).length;
+    var audioCount=daySpots.filter(function(s){return s.audioName;}).length;
+    html+='<div class="day-stat-row">';
+    html+='<div class="day-stat-num">'+(i+1)+'</div>';
+    if(thumb){
+      html+='<img src="'+thumb.dataUrl+'" style="width:38px;height:38px;border-radius:4px;object-fit:cover;flex-shrink:0;filter:sepia(10%);">';
+    } else {
+      html+='<div style="width:38px;height:38px;border-radius:4px;background:rgba(245,240,232,.06);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:.85rem;">📍</div>';
+    }
+    html+='<div class="day-stat-info">';
+    html+='<div class="day-stat-name">'+formatDateLabel(day)+' · '+daySpots.length+'개 스팟</div>';
+    html+='<div class="day-stat-meta">'+dayPhotos+'장 · '+voiceCount+'개 코멘트'+(audioCount?' · '+audioCount+'개 오디오':'')+'</div>';
+    html+='<div class="day-stat-bar"><div class="day-stat-bar-fill" style="width:'+pct+'%"></div></div>';
+    html+='</div></div>';
+  });
+
+  // 스팟별 사진
+  html+='<div class="stats-section-title" style="margin-top:1.5rem;">스팟별 기록</div>';
+  S.spots.forEach(function(sp){
+    html+='<div style="margin-bottom:.9rem;">';
+    html+='<div style="font-size:.72rem;color:var(--gold);font-family:Noto Serif KR,serif;margin-bottom:.35rem;">📍 '+sp.name+'</div>';
+    if(sp.photos.length){
+      html+='<div style="display:flex;gap:.3rem;overflow-x:auto;scrollbar-width:none;">';
+      sp.photos.forEach(function(p){
+        html+='<img src="'+p.dataUrl+'" style="width:64px;height:64px;object-fit:cover;border-radius:4px;flex-shrink:0;filter:sepia(10%);">';
+      });
+      html+='</div>';
+    } else {
+      html+='<div style="font-size:.7rem;color:rgba(245,240,232,.25);">사진 없음</div>';
+    }
+    if(sp.voice){
+      html+='<div style="font-size:.72rem;color:rgba(245,240,232,.45);font-style:italic;margin-top:.35rem;font-family:Noto Serif KR,serif;">🎤 '+sp.voice+'</div>';
+    }
+    html+='</div>';
+  });
+  html+='<div style="height:2rem;"></div>';
+  body.innerHTML=html;
+}
+
+function statCard(extra,icon,val,label,gold){
+  return '<div class="stat-card'+( extra?' '+extra:'' )+'">'
+    +'<span class="stat-icon">'+icon+'</span>'
+    +'<div class="stat-value'+(gold?' gold':'')+'">'+val+'</div>'
+    +'<div class="stat-label">'+label+'</div>'
+    +'</div>';
+}
+
+
+/* ═══════════════════════════════════════
+   MAP VIEW — Leaflet
+═══════════════════════════════════════ */
+let _map=null, _markers=[], _polyline=null;
+
+function openMapView(){
+  showScreen('map-screen');
+  setTimeout(()=>initMap(),100);
+}
+
+function initMap(){
+  const gpsSpots=S.spots.filter(sp=>sp.hasGPS&&sp.lat&&sp.lng);
+
+  if(_map){ _map.invalidateSize(); if(gpsSpots.length) centerMap(); return; }
+
+  // 중심 좌표 결정
+  const center=gpsSpots.length
+    ?[gpsSpots[0].lat,gpsSpots[0].lng]
+    :[37.5665,126.9780]; // 서울 기본값
+  const zoom=gpsSpots.length>1?12:gpsSpots.length===1?15:10;
+
+  _map=L.map('leaflet-map',{zoomControl:true,attributionControl:false}).setView(center,zoom);
+
+  // 타일 레이어 — 다크 스타일
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{
+    maxZoom:19,subdomains:'abcd'
+  }).addTo(_map);
+
+  // Attribution 우측 하단
+  L.control.attribution({prefix:false}).addTo(_map);
+  _map.attributionControl.addAttribution('© OpenStreetMap · CartoDB');
+
+  renderMapSpots();
+}
+
+function renderMapSpots(){
+  if(!_map)return;
+  _markers.forEach(function(m){m.remove();});_markers=[];
+  if(_polyline){_polyline.remove();_polyline=null;}
+
+  var gpsSpots=S.spots.filter(function(sp){return sp.hasGPS&&sp.lat&&sp.lng;});
+  if(!gpsSpots.length){
+    document.getElementById('map-legend').innerHTML='<div style="font-size:.7rem;color:rgba(245,240,232,.3);padding:.2rem 0;">GPS 정보가 있는 스팟이 없습니다</div>';
+    return;
+  }
+
+  var latlngs=gpsSpots.map(function(sp){return [sp.lat,sp.lng];});
+  _polyline=L.polyline(latlngs,{color:'#c9a227',weight:2.5,opacity:.55,dashArray:'6,4'}).addTo(_map);
+
+  gpsSpots.forEach(function(sp,i){
+    var isFirst=i===0,isLast=i===gpsSpots.length-1;
+    var color=isFirst?'#4a9':isLast?'#c4501a':'#c9a227';
+    var iconHtml='<div style="width:32px;height:32px;border-radius:50%;background:'+color+';border:2.5px solid rgba(255,255,255,.85);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:700;color:white;box-shadow:0 2px 8px rgba(0,0,0,.5);">'+(i+1)+'</div>';
+    var icon=L.divIcon({html:iconHtml,className:'',iconSize:[32,32],iconAnchor:[16,16]});
+    var marker=L.marker([sp.lat,sp.lng],{icon}).addTo(_map);
+    var thumb=sp.photos[0];
+    var popupContent='<div class="map-spot-popup">';
+    if(thumb) popupContent+='<img src="'+thumb.dataUrl+'">';
+    popupContent+='<div class="popup-name">📍 '+sp.name+'</div>';
+    var meta=sp.photos.length+'장';
+    if(sp.voice) meta+=' · '+sp.voice.slice(0,30)+(sp.voice.length>30?'…':'');
+    popupContent+='<div class="popup-meta">'+meta+'</div></div>';
+    marker.bindPopup(popupContent,{maxWidth:200});
+    _markers.push(marker);
+  });
+
+  var legend=document.getElementById('map-legend');
+  var legendHTML='';
+  gpsSpots.forEach(function(sp,i){
+    var color=i===0?'#4a9':i===gpsSpots.length-1?'#c4501a':'#c9a227';
+    legendHTML+='<div class="legend-chip" onclick="focusMapSpot('+i+')" style="border-color:'+color+'44;">'
+      +'<div class="legend-dot" style="background:'+color+';"></div>'+sp.name+'</div>';
+  });
+  legend.innerHTML=legendHTML;
+  centerMap();
+}
+
+
+function focusMapSpot(idx){
+  const gpsSpots=S.spots.filter(sp=>sp.hasGPS&&sp.lat&&sp.lng);
+  if(!gpsSpots[idx]||!_map)return;
+  _map.flyTo([gpsSpots[idx].lat,gpsSpots[idx].lng],16,{duration:.8});
+  _markers[idx]?.openPopup();
+  document.querySelectorAll('.legend-chip').forEach((c,i)=>c.classList.toggle('active',i===idx));
+}
+
+function centerMap(){
+  if(!_map)return;
+  const gpsSpots=S.spots.filter(sp=>sp.hasGPS&&sp.lat&&sp.lng);
+  if(!gpsSpots.length)return;
+  if(gpsSpots.length===1){_map.flyTo([gpsSpots[0].lat,gpsSpots[0].lng],15);return;}
+  const bounds=L.latLngBounds(gpsSpots.map(sp=>[sp.lat,sp.lng]));
+  _map.flyToBounds(bounds,{padding:[40,40],duration:.8});
+}
+
+/* ═══════════════════════════════════════
+   INIT
+═══════════════════════════════════════ */
+document.getElementById('home').style.display='flex';
+checkSavedJourney();
+</script>
+</body>
+</html>
